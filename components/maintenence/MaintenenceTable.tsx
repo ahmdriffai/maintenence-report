@@ -129,172 +129,131 @@ export const columns: ColumnDef<Maintenence>[] = [
     },
   },
 ];
+
 const MaintenenceTable: React.FC = () => {
-  const spareparts = useGetAllMaintenence();
+  // 1. State untuk Pagination & Search (Sync dengan API)
+  const [{ pageIndex, pageSize }, setPagination] = React.useState({
+    pageIndex: 0, // Tanstack mulai dari 0
+    pageSize: 30,
+  });
+  const [globalFilter, setGlobalFilter] = React.useState("");
+
+  // 2. Fetch data berdasarkan state di atas
+  const { data: response, isLoading } = useGetAllMaintenence({
+    page: pageIndex + 1, // API kita mulai dari 1
+    size: pageSize,
+    search: globalFilter,
+  });
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  // 3. Konfigurasi Table
   const table = useReactTable({
-    data: spareparts.data ?? [],
+    data: response?.data ?? [],
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    pageCount: response?.pagging.totalPages ?? -1, // Total halaman dari API
     state: {
       sorting,
-      columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: { pageIndex, pageSize },
     },
-    initialState: {
-      pagination: { pageSize: 30 },
-    },
+    onPaginationChange: setPagination,
+    manualPagination: true, // WAJIB: Beritahu tabel ini server-side
+    getCoreRowModel: getCoreRowModel(),
+    // getPaginationRowModel: getPaginationRowModel(), // Hapus ini jika full server-side
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
   });
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter nomor laporan..."
-          value={
-            (table.getColumn("record_number")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("record_number")?.setFilterValue(event.target.value)
-          }
+          placeholder="Cari laporan (Nomor, Asset, Driver)..."
+          value={globalFilter}
+          onChange={(e) => {
+            setGlobalFilter(e.target.value);
+            setPagination((prev) => ({ ...prev, pageIndex: 0 })); // Reset ke hal 1 saat cari
+          }}
           className="max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {isLoading && <Loader2 className="ml-4 h-4 w-4 animate-spin text-muted-foreground" />}
       </div>
+
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+            {isLoading ? (
+               <TableRow><TableCell colSpan={columns.length} className="h-24 text-center">Loading...</TableCell></TableRow>
+            ) : table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row, i) => (
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {cell.column.id === "no"
+                        ? (pageIndex * pageSize) + (i + 1) // Penomoran urut antar halaman
+                        : flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
+                <TableCell colSpan={columns.length} className="h-24 text-center">No results.</TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      {/* Footer Pagination */}
       <div className="flex items-center justify-end space-x-4 py-4">
-        {/* Info selected rows */}
         <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        {/* Page size dropdown */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Rows per page</span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                {table.getState().pagination.pageSize}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {[30, 60, 90, 120].map((pageSize) => (
-                <DropdownMenuItem
-                  key={pageSize}
-                  onClick={() => table.setPageSize(pageSize)}
-                >
-                  {pageSize}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+           Halaman {pageIndex + 1} dari {response?.pagging.totalPages || 1}
         </div>
 
-        {/* Pagination buttons */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Rows per page</span>
+          <select
+            value={pageSize}
+            onChange={e => table.setPageSize(Number(e.target.value))}
+            className="border rounded p-1 text-sm"
+          >
+            {[30, 60, 90].map(size => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => table.previousPage()} 
+            disabled={!table.getCanPreviousPage() || isLoading}
           >
             Previous
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => table.nextPage()} 
+            disabled={!table.getCanNextPage() || isLoading}
           >
             Next
           </Button>
@@ -346,7 +305,7 @@ const DeleteMaintenance = ({ maintenanceId }: { maintenanceId: string }) => {
 };
 
 // add authorization header to fetch request and open in new browser tab
-const DownloadMaintenancePDF = ({
+export const DownloadMaintenancePDF = ({
   maintenanceId,
 }: {
   maintenanceId: string;

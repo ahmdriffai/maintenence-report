@@ -2,6 +2,7 @@
 import { fail, success } from "@/lib/apiResponse";
 import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { dueDateToThisYear } from "@/lib/utils";
 import { UpdateChassisSchema } from "@/schema/chassisSchema";
 
 import { NextApiRequest, NextApiResponse } from "next";
@@ -20,10 +21,32 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       }
 
       case "DELETE": {
-        const chassis = await findById(chassisId);
-        if (!chassis) return res.status(404).json(fail("Chassis not found"));
+        const chassis = await prisma.chassis.findUnique({
+          where: { id: chassisId },
+          select: { asset_id: true },
+        });
 
-        await prisma.chassis.delete({ where: { id: chassisId } });
+        if (!chassis) {
+          return res.status(404).json(fail("Chassis not found"));
+        }
+
+        await prisma.$transaction(async (tx) => {
+          // 1️⃣ Hapus reminder
+          await tx.reminder.deleteMany({
+            where: { asset_id: chassis.asset_id },
+          });
+
+          // 2️⃣ Hapus chassis
+          await tx.chassis.delete({
+            where: { id: chassisId },
+          });
+
+          // 3️⃣ Hapus asset
+          await tx.asset.delete({
+            where: { id: chassis.asset_id },
+          });
+        });
+
         return res.status(200).json(success(null));
       }
 
@@ -64,6 +87,25 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             asset: true,
           },
         });
+
+        const assetId = updatedChassis.asset_id;
+
+        // jika tidak ada, buat reminder baru dan jika ada, buat ulang dengan tanggal yang baru
+        await prisma.reminder.deleteMany({
+          where: { asset_id: assetId },
+        });
+
+        if (chassis.kir_due_date) {
+          await prisma.reminder.create({
+            data: {
+              asset_id: updatedChassis.asset.id,
+              reminder_type: "KIR",
+              due_date: dueDateToThisYear(chassis.kir_due_date),
+              interval_month: 6,
+              next_due_date: dueDateToThisYear(chassis.kir_due_date),
+            },
+          });
+        }
 
         return res.status(200).json(success(updatedChassis));
       }

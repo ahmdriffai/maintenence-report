@@ -91,3 +91,16 @@ export const HEADER_MAP_VEHICLE: Record<string, string> = {
   "TGL KIR": "kir_due_date",
   "NO KIR CHASSIS": "kir_number",
 };
+
+export function dueDateToThisYear(input: Date) {
+  if (!input) return input;
+
+  const inputDate = new Date(input);
+  const now = new Date();
+
+  return new Date(
+    now.getFullYear(),          // tahun ini
+    inputDate.getMonth(),       // bulan dari input
+    inputDate.getDate()         // tanggal dari input
+  );
+}

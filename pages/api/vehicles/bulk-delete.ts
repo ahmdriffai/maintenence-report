@@ -14,25 +14,38 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { ids } = DeleteVehicleBulkSchema.parse(req.body);
 
-    // OPTIONAL: pastikan semua vehicles ada
-    const existing = await prisma.vehicle.count({
+    // Pastikan ada vehicle
+    const vehicles = await prisma.vehicle.findMany({
       where: { id: { in: ids } },
+      select: { id: true, asset_id: true },
     });
 
-    if (existing === 0) {
-      return res.status(404).json(fail("Vehicle not found"));
+    if (vehicles.length === 0) {
+      return res.status(404).json(fail("Vehicles not found"));
     }
 
-    // ✅ SAMA dengan delete satuan → hanya delete vehicle
-    const deleted = await prisma.vehicle.deleteMany({
-      where: {
-        id: { in: ids },
-      },
+    await prisma.$transaction(async (tx) => {
+      for (const vehicle of vehicles) {
+        // 1️⃣ Hapus reminder terkait asset
+        await tx.reminder.deleteMany({
+          where: { asset_id: vehicle.asset_id },
+        });
+
+        // 2️⃣ Hapus vehicle
+        await tx.vehicle.delete({
+          where: { id: vehicle.id },
+        });
+
+        // 3️⃣ Hapus asset
+        await tx.asset.delete({
+          where: { id: vehicle.asset_id },
+        });
+      }
     });
 
     return res.status(200).json(
       success({
-        deletedCount: deleted.count,
+        deletedCount: vehicles.length,
       })
     );
   } catch (error: any) {

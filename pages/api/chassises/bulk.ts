@@ -2,7 +2,7 @@
 import { fail, success } from "@/lib/apiResponse";
 import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { getNextGeneratedNumber } from "@/lib/utils";
+import { dueDateToThisYear, getNextGeneratedNumber } from "@/lib/utils";
 import { CreateChassisBulkSchema, CreateChessisSchema } from "@/schema/chassisSchema";
 import { NextApiRequest, NextApiResponse } from "next";
 import z from "zod";
@@ -61,6 +61,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           },
           include: { asset: true },
         });
+
+        if (chassis.kir_due_date) {
+          await tx.reminder.create({
+            data: {
+              asset_id: chassis.asset.id,
+              reminder_type: "KIR",
+              due_date: dueDateToThisYear(chassis.kir_due_date),
+              interval_month: 6,
+              next_due_date: dueDateToThisYear(chassis.kir_due_date),
+            },
+          });
+        }
 
         created.push(chassis);
         lastCode = nextCode;

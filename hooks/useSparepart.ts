@@ -68,3 +68,19 @@ export const useUpdateSparepart = () => {
     },
   });
 };
+
+// getsparepart usage
+export const useGetSparepartUsage = (params: { startDate: string; endDate: string }) => {
+  return useQuery<any>({
+    queryKey: ["sparepart-usage", params],
+    queryFn: async () => {
+      const res = await api.get(`/spareparts/usage`, {
+        params: {
+          startDate: params.startDate,
+          endDate: params.endDate,
+        },
+      });
+      return res.data;
+    },
+  });
+};

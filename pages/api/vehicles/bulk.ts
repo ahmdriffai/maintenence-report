@@ -2,7 +2,7 @@
 import { fail, success } from "@/lib/apiResponse";
 import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { getNextGeneratedNumber } from "@/lib/utils";
+import { dueDateToThisYear, getNextGeneratedNumber } from "@/lib/utils";
 import { CreateVehicleSchema } from "@/schema/vehicleSchema";
 import { NextApiRequest, NextApiResponse } from "next";
 import z from "zod";
@@ -10,7 +10,7 @@ import z from "zod";
 const BulkCreateVehicleSchema = z.array(CreateVehicleSchema);
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-    console.log("REQ BODY", req.body);
+  console.log("REQ BODY", req.body);
   if (req.method !== "POST") {
     return res.status(405).json(fail("Method not allowed"));
   }
@@ -66,6 +66,40 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           },
           include: { asset: true },
         });
+
+        const remindersData: {
+          asset_id: string;
+          reminder_type: "STNK" | "KIR";
+          due_date: Date;
+          interval_month: number;
+          next_due_date: Date;
+        }[] = [];
+
+        if (vehicle.stnk_due_date) {
+          remindersData.push({
+            asset_id: vehicle.asset.id,
+            reminder_type: "STNK",
+            due_date: dueDateToThisYear(vehicle.stnk_due_date),
+            interval_month: 12,
+            next_due_date: dueDateToThisYear(vehicle.stnk_due_date)
+          });
+        }
+
+        if (vehicle.kir_due_date) {
+          remindersData.push({
+            asset_id: vehicle.asset.id,
+            reminder_type: "KIR",
+            due_date: dueDateToThisYear(vehicle.kir_due_date),
+            interval_month: 6,
+            next_due_date: dueDateToThisYear(vehicle.kir_due_date),
+          });
+        }
+
+        if (remindersData.length > 0) {
+          await tx.reminder.createMany({
+            data: remindersData,
+          });
+        }
 
         created.push(vehicle);
         lastCode = nextCode;

@@ -2,7 +2,7 @@
 import { fail, success } from "@/lib/apiResponse";
 import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { getNextGeneratedNumber } from "@/lib/utils";
+import { dueDateToThisYear, getNextGeneratedNumber } from "@/lib/utils";
 import { CreateVehicleSchema } from "@/schema/vehicleSchema";
 import { tr } from "date-fns/locale";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -40,7 +40,7 @@ async function handleCreateVehicle(
       const lastVehicle = await tx.vehicle.findFirst({
         orderBy: { asset: { asset_code: "desc" } },
         select: { asset: true },
-      }); 
+      });
 
       const vehicleNumber = getNextGeneratedNumber(
         lastVehicle?.asset?.asset_code,
@@ -79,6 +79,40 @@ async function handleCreateVehicle(
           asset: true,
         },
       });
+
+      const remindersData: {
+        asset_id: string;
+        reminder_type: "STNK" | "KIR";
+        due_date: Date;
+        interval_month: number;
+        next_due_date: Date;
+      }[] = [];
+
+      if (vehicle.stnk_due_date) {
+        remindersData.push({
+          asset_id: vehicle.asset.id,
+          reminder_type: "STNK",
+          due_date: dueDateToThisYear(vehicle.stnk_due_date),
+          interval_month: 12,
+          next_due_date: dueDateToThisYear(vehicle.stnk_due_date)
+        });
+      }
+
+      if (vehicle.kir_due_date) {
+        remindersData.push({
+          asset_id: vehicle.asset.id,
+          reminder_type: "KIR",
+          due_date: dueDateToThisYear(vehicle.kir_due_date),
+          interval_month: 6,
+          next_due_date: dueDateToThisYear(vehicle.kir_due_date),
+        });
+      }
+
+      if (remindersData.length > 0) {
+        await tx.reminder.createMany({
+          data: remindersData,
+        });
+      }
 
       return vehicle;
     });
