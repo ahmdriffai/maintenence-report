@@ -3,6 +3,7 @@
 @driverID=648c8f7e-7616-4d3a-9d43-513121fae73a
 @vehicleID=ee8648c9-1121-4765-a6b6-260e9458d621
 @chassisID=1359ed55-b3e1-4f3a-bd78-7f68472514b4
+@equipementID=7198ea19-32f1-4fd1-b961-98560c9faca5
 
 
 ### Register User
@@ -208,5 +209,66 @@ Authorization: Bearer {{token}}
 
 ### Delete Chassis
 DELETE {{baseUrl}}/api/chassises/{{chassisID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### Get All Equipment 
+GET {{baseUrl}}/api/equipments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Create Equipment 
+POST {{baseUrl}}/api/equipments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  // asset
+  "asset_code": "12354",
+  "name": "Mobil Eropa Yak gaesd",
+  "brand": "Yamasa",
+  "model": "modal",
+  "serial_number": "xxxd",
+  "purchase_date": "2021-06-12",
+  "purchase_price": 1000000,
+
+  // equipment
+  "equipment_code": "123",
+  "equipment_type": "apa",
+  "specification": "spek",
+  "condition": "bagus"
+}
+
+### Get Equipment By Id
+GET {{baseUrl}}/api/equipments/{{equipementID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Get Equipment By Id
+PATCH {{baseUrl}}/api/equipments/{{equipementID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  // asset
+  "asset_code": "12354",
+  "name": "Mobil Eropa Yak gaesd",
+  "brand": "Yamasa",
+  "model": "modal",
+  "serial_number": "xxxdd",
+  "purchase_date": "2021-06-12",
+  "purchase_price": 1000000,
+
+  // equipment
+  "equipment_code": "1233",
+  "equipment_type": "apa edit",
+  "specification": "spek",
+  "condition": "bagus"
+}
+
+### Delete Equipement
+DELETE {{baseUrl}}/api/equipments/{{equipementID}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
