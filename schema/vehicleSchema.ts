@@ -46,8 +46,8 @@ export const CreateVehicleSchema = z.object({
 
 export const UpdateVehicleSchema = z.object({
   // asset
-  asset_code: z.string().optional(),
-  name: z.string().optional(),
+  asset_code: z.string(),
+  name: z.string(),
   brand: z.string().optional(),
   model: z.string().optional(),
   serial_number: z.string().optional(),

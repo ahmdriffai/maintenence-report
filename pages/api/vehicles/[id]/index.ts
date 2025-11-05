@@ -34,13 +34,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         },
         data: {
           asset: {
-            create: {
-              asset_code: body.asset_code ?? '',
+            update: {
+              asset_code: body.asset_code,
               is_active: true,
               asset_type: "VEHICLE",
-              name: body.name ?? '',
-              brand: body.brand ?? '',
-              model: body.model ?? '',
+              name: body.name,
+              brand: body.brand,
+              model: body.model,
               purchase_date: body.purchase_date,
               purchase_price: body.purchase_price,
               serrial_number: body.serial_number,

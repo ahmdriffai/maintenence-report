@@ -1,7 +1,9 @@
 @baseUrl = http://localhost:3000
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZjNmUzZWY0LTZmMjAtNDgwMC05NDIxLTVlMTAxNWZjYzU3MyIsInVzZXJuYW1lIjoiYWhtYWRyaWZhaSIsImlhdCI6MTc2MjIyMzY1MCwiZXhwIjoxNzYyMzEwMDUwfQ.oET1MovJpeuZRXglzSGpBq08lMYwAQW7IOUzeplaBig
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUwMzYxZDY5LWEzYmQtNDFlMy05NGI1LTlkOGNjOWRkNzg2MyIsInVzZXJuYW1lIjoicmlmYWkiLCJpYXQiOjE3NjIzMTAxMzcsImV4cCI6MTc2MjM5NjUzN30.tf_9ZqOXvrdi6WePchMJa5ZO8Zm_-W5HC6d6mUMEWPM
 @driverID=648c8f7e-7616-4d3a-9d43-513121fae73a
 @vehicleID=ee8648c9-1121-4765-a6b6-260e9458d621
+@chassisID=1359ed55-b3e1-4f3a-bd78-7f68472514b4
+
 
 ### Register User
 POST {{baseUrl}}/api/users/register
@@ -10,7 +12,7 @@ Content-Type: application/json
 {
   "fullname": "Ahmad Rifai",
   "username": "rifai",
-  "password": "",
+  "password": "rahasia",
   "role": "ADMIN"
 }
 
@@ -19,8 +21,8 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "ahmadrifai",
-  "password": "rahaisa"
+  "username": "rifai",
+  "password": "rahasia"
 }
 
 ### Current User / Me
@@ -170,5 +172,41 @@ Authorization: Bearer {{token}}
 
 ### Get All Chassis
 GET {{baseUrl}}/api/chassises
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Get Chasis By ID
+GET {{baseUrl}}/api/chassises/{{chassisID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### Update Chassis 
+PATCH {{baseUrl}}/api/chassises/{{chassisID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  // asset
+  "asset_code": "12354",
+  "name": "Mobil Eropa Yak gaesd",
+  "brand": "Yamasa",
+  "model": "modal",
+  "serial_number": "xxxd",
+  "purchase_date": "2021-06-12",
+  "purchase_price": 1000000,
+
+  // chassis
+  "chassis_number": "124",
+  "chassis_category": "20 feat",
+  "chassis_type": "RANGKA",
+  "axle_count": 13,
+  "no_kir": "124590",
+  "kir_due_date": "2021-06-12",
+  "notes": "noto boto sedoyo"
+}
+
+### Delete Chassis
+DELETE {{baseUrl}}/api/chassises/{{chassisID}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
