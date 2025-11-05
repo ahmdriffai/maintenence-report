@@ -1,0 +1,611 @@
+openapi: 3.1.0
+info:
+  title: Vehicle Maintenance Management API
+  description: API untuk mengelola data kendaraan, sparepart, dan laporan maintenance kendaraan.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: Local API
+
+tags:
+  - name: Login Page
+  - name: Home Page
+  - name: Create Maintenence Page
+  - name: History Maintenence Page
+
+paths:
+  /auth/_login:
+    post:
+      tags: [Login Page]
+      summary: Login User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginUserRequest"
+      responses:
+        "200":
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Login successful"
+                  data:
+                    $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /user/_current:
+    get:
+      tags: [Home Page]
+      summary: Detail user login
+      responses:
+        "200":
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "User data retrieved successfully" 
+                  data:
+                    $ref: "#/components/schemas/UserResponse"
+
+        "404":
+          description: User Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /maintenance/_current:
+    get:
+      tags: [Home Page]
+      summary: Daftar laporan maintenance user login
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed, cancelled]
+      responses:
+        "200":
+          description: Berhasil mengambil daftar laporan maintenance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message:
+                    type: string
+                    example: "Maintenance records retrieved successfully" 
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MaintenenceRecordResponse"
+
+  /vehicles:
+    get:
+      tags: [Create Maintenence Page]
+      summary: List Asset Kendaraan
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Data vehicle retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/VehicleResponse"
+
+  /chassises:
+    get:
+      tags: [Create Maintenence Page]
+      summary: List Asset Chassis
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Data chassis retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ChassisResponse"
+
+  /equipments:
+    get:
+      tags: [Create Maintenence Page]
+      summary: List Asset Equipment
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Data equipment retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EquipmentResponse"
+
+  /sparepats:
+    get:
+      tags: [Create Maintenence Page]
+      summary: List Asset Sparepart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Data sparepart retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SparepartResponse"
+    post:
+      tags: [Create Maintenence Page]
+      summary: Create Sparepart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SparepartCreateRequest"
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Data sparepart retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SparepartResponse"
+        "401":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /drivers:
+    get:
+      tags: [Create Maintenence Page]
+      summary: List Driver
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Data driver retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DriverResponse" 
+  /maintenence:
+    post:
+      tags: [Create Maintenence Page]
+      summary: Create Maintenance
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MaintenanceRequest"
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Maintenance record created successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EquipmentResponse"
+        "401":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /maintenence/export:
+    get:
+      tags: [History Maintenence Page]
+      summary: Export report as PDF or Excel
+      description: Download report in PDF or Excel format by specifying the `type` query parameter.
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [pdf, xlsx]
+          description: File type to export
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end
+          in: query
+          schema:
+            type: string
+            format: date
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful file download
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid type parameter"
+
+  /maintenence/{id}:
+    get:
+      tags: [History Maintenence Page]
+      summary: Detail Maintenence
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Maintenence unique identifier
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Maintenance record retrieved successfully"
+                  data:
+                    $ref: "#/components/schemas/EquipmentResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      tags: [History Maintenence Page]
+      summary: Edit Maintenence
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MaintenanceRequest"
+      responses:
+        "200":
+          description: Get All Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Maintenance record updated successfully"  
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EquipmentResponse"
+        "401":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+
+  schemas:
+    # Response
+    ErrorResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string }
+
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string }
+        user:
+          $ref: "#/components/schemas/UserResponse"
+    UserResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        username: { type: string }
+        fullname: { type: string }
+        password: { type: string }
+        role: { type: string, enum: [user, admin] }
+    MaintenenceRecordResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        record_number: { type: string }
+        asset:
+          $ref: "#/components/schemas/AssetResponse"
+        reported_by: { type: string }
+        complaint: { type: string }
+        repair_notes: { type: string }
+        driver:
+          $ref: "#/components/schemas/DriverResponse"
+
+        km_kendaraan: { type: [number, "null"] }
+        total_cost: { type: number }
+        labor_cost: { type: number }
+        spareparts_cost: { type: number }
+        asset_image_url: { type: string }
+        spareparts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SparepartResponse"
+
+    SparepartResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string }
+        name: { type: string }
+        unit: { type: string }
+        price: { type: number }
+        stock_quantity: { type: number }
+        description: { type: string }
+
+    DriverResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        driver_number: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        notes: { type: string }
+        is_active: { type: boolean }
+    AssetResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        asset_code: { type: string }
+        name: { type: string }
+        asset_type:
+          { type: string, enum: [vehicle, chassis, equipment, office_tool] }
+        brand: { type: string }
+        model: { type: string }
+        serial_number: { type: string }
+        purchase_date: { type: string }
+        purchase_price: { type: number }
+        location: { type: string }
+        is_active: { type: boolean }
+    VehicleResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        asset:
+          $ref: "#/components/schemas/AssetResponse"
+        license_plate: { type: string }
+        vehicle_type: { type: string }
+        color: { type: string }
+        year: { type: number }
+        engine_number: { type: string }
+        frame_number: { type: string }
+        no_kir: { type: string }
+        kir_due_date: { type: string, format: date }
+        stnk_due_date: { type: string, format: date }
+        notes: { type: string }
+    ChassisResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        asset:
+          $ref: "#/components/schemas/AssetResponse"
+        chassis_number: { type: string }
+        chassis_type: { type: string, enum: [rangka, flatbed] }
+        chassis_category:
+          { type: string, enum: [20 feet, 40 feet lowbed, dolly, other] }
+        axle_count: { type: number }
+        no_kir: { type: string }
+        kir_due_date: { type: string }
+        notes: { type: string }
+    EquipmentResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        asset:
+          $ref: "#/components/schemas/AssetResponse"
+        equipment_code: { type: string }
+        equipment_type: { type: string }
+        specification: { type: string }
+        condition: { type: string, enum: [good, needs_repair, broken] }
+
+    # Request
+    LoginUserRequest:
+      type: object
+      properties:
+        username: { type: string }
+        password: { type: string }
+        role: { type: string, enum: [admin, user] }
+      required: [username, password, role]
+
+    MaintenanceRequest:
+      type: object
+      properties:
+        asset_id: { type: string, format: uuid }
+        driver_id: { type: string, format: uuid }
+        asset_photo_url: { type: string, format: uri, example: "http://example.com/photo.jpg" }
+        repair_photo_urls:
+          { type: array, format: uri, example: ["http://example.com/photo1.jpg"] }
+        km_asset: { type: number, example: 12000 }
+        spareparts: 
+          type: array
+          items: 
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              quantity: { type: number }
+        complaint: { type: string }
+        repair_plan: { type: string }
+      required: [asset_id, driver_id, sparepart_ids, complaint, repair_plan]
+   
+    SparepartCreateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        price: { type: integer }
+      required: [name, price]

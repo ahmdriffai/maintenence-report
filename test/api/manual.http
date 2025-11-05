@@ -1,0 +1,174 @@
+@baseUrl = http://localhost:3000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZjNmUzZWY0LTZmMjAtNDgwMC05NDIxLTVlMTAxNWZjYzU3MyIsInVzZXJuYW1lIjoiYWhtYWRyaWZhaSIsImlhdCI6MTc2MjIyMzY1MCwiZXhwIjoxNzYyMzEwMDUwfQ.oET1MovJpeuZRXglzSGpBq08lMYwAQW7IOUzeplaBig
+@driverID=648c8f7e-7616-4d3a-9d43-513121fae73a
+@vehicleID=ee8648c9-1121-4765-a6b6-260e9458d621
+
+### Register User
+POST {{baseUrl}}/api/users/register
+Content-Type: application/json
+
+{
+  "fullname": "Ahmad Rifai",
+  "username": "rifai",
+  "password": "",
+  "role": "ADMIN"
+}
+
+### Login User
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "ahmadrifai",
+  "password": "rahaisa"
+}
+
+### Current User / Me
+GET  {{baseUrl}}/api/auth/me
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Create Driver
+POST  {{baseUrl}}/api/drivers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  "driver_number": "1234568",
+  "name": "Ozi Asolole",
+  "phone": "085155380996",
+  "notes": ""
+}
+
+### Get All Drivers
+GET {{baseUrl}}/api/drivers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### Get By ID
+GET {{baseUrl}}/api/drivers/{{driverID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### Update By ID
+PATCH {{baseUrl}}/api/drivers/{{driverID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "driver_number": "1234568",
+  "name": "Ozi Asolole Edit",
+  "phone": "085155380996",
+  "notes": "catatan sejarah",
+  "is_active": true
+}
+
+### Delete Driver
+DELETE {{baseUrl}}/api/drivers/{{driverID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Create Vehicle
+POST {{baseUrl}}/api/vehicles
+Content-Type: application/json
+Authorization: Bearer {{token}} 
+
+{
+  // asset
+  "asset_code": "1235",
+  "name": "Mobil Eropa",
+  "brand": "Yamasa",
+  "model": "modal",
+  "serial_number": "xxx",
+  "purchase_date": "2021-06-12",
+  "purchase_price": 1000000,
+
+  // vehicle
+  "license_plate": "AA 5504 ABC",
+  "vehicle_type": "tipeku",
+  "color": "merah",
+  "year": 2000,
+  "engine_number": "xxx",
+  "frame_number": "xxx",
+  "no_kir": "xxx",
+  "kir_due_date": "2021-06-12",
+  "stnk_due_date": "2021-06-12",
+  "notes": "" 
+}
+
+### Get All Vehicle
+GET {{baseUrl}}/api/vehicles
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Get Vehicle By ID
+GET {{baseUrl}}/api/vehicles/{{vehicleID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### Update Vehicle
+PATCH  {{baseUrl}}/api/vehicles/{{vehicleID}}
+Content-Type: application/json
+Authorization: Bearer {{token}} 
+
+{
+  // asset
+  "asset_code": "12354",
+  "name": "Mobil Eropa Edit Sekali",
+  "brand": "Yamasa",
+  "model": "modal",
+  "serial_number": "xxx",
+  "purchase_date": "2021-06-12",
+  "purchase_price": 1000000,
+
+  // vehicle
+  "license_plate": "AA 5504 ABC",
+  "vehicle_type": "tipeku",
+  "color": "merah",
+  "year": 2000,
+  "engine_number": "xxx",
+  "frame_number": "xxx",
+  "no_kir": "xxx",
+  "kir_due_date": "2021-06-12",
+  "stnk_due_date": "2021-06-12",
+  "notes": "" 
+}
+
+### Delete Vehicle
+DELETE {{baseUrl}}/api/vehicles/{{vehicleID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Create Chassis 
+POST  {{baseUrl}}/api/chassises
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  // asset
+  "asset_code": "12354",
+  "name": "Mobil Eropa Edit Sekali",
+  "brand": "Yamasa",
+  "model": "modal",
+  "serial_number": "xxx",
+  "purchase_date": "2021-06-12",
+  "purchase_price": 1000000,
+
+  // chassis
+  "chassis_number": "124",
+  "chassis_category": "20 feat",
+  "chassis_type": "RANGKA",
+  "axle_count": 1,
+  "no_kir": "124590",
+  "kir_due_date": "2021-06-12",
+  "notes": "notes"
+}
+
+### Get All Chassis
+GET {{baseUrl}}/api/chassises
+Content-Type: application/json
+Authorization: Bearer {{token}}

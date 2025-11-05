@@ -1,0 +1,72 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { fail, success } from "@/lib/apiResponse";
+import prisma from "@/lib/prisma";
+import { verifyToken } from "@/pages/api-middleware/auth";
+import { CreateChessisSchema } from "@/schema/chassisSchema";
+import { NextApiRequest, NextApiResponse } from "next";
+import z from "zod";
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method == "POST") {
+    try {
+      const body = CreateChessisSchema.parse(req.body);
+
+      const vehicle = await prisma.chassis.create({
+        data: {
+          asset: {
+            create: {
+              asset_code: body.asset_code,
+              is_active: true,
+              asset_type: "CHASSIS",
+              name: body.name,
+              brand: body.brand,
+              model: body.model,
+              purchase_date: body.purchase_date,
+              purchase_price: body.purchase_price,
+              serrial_number: body.serial_number,
+            },
+          },
+
+          chassis_number: body.chassis_number,
+          chassis_type: body.chassis_type,
+          axle_count: body.axle_count,
+          chassis_category: body.chassis_category,
+          kir_due_date: body.kir_due_date,
+          no_kir: body.no_kir,
+          notes: body.notes,
+        },
+        include: {
+          asset: true,
+        },
+      });
+
+      res.status(201).json(success(vehicle));
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          message: "Validasi gagal",
+          errors: error.flatten().fieldErrors,
+        });
+      }
+      console.log(error);
+      res.status(500).json(fail("terjadi kesalahan server"));
+    }
+  }
+
+  if (req.method == "GET") {
+    try {
+      const drivers = await prisma.chassis.findMany({
+        include: {
+          asset: true,
+        },
+      });
+
+      res.status(200).json(success(drivers));
+    } catch (error: any) {
+      res.status(500).json(fail("terjadi kesalahan server", error.message));
+    }
+  }
+}
+
+export default verifyToken(handler);

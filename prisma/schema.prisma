@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AssetType {
+  VEHICLE
+  CHASSIS
+  EQUIPMENT
+  OFFICE_TOOL
+}
+
+enum ChassisType {
+  RANGKA
+  FLATBED
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  fullname  String
+  username  String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+
+  @@map("users")
+}
+
+model Driver {
+  id            String  @id @default(uuid()) @db.Uuid
+  driver_number String
+  name          String
+  phone         String
+  notes         String?
+  is_active     Boolean
+
+  @@map("drivers")
+}
+
+model Asset {
+  id             String    @id @default(uuid()) @db.Uuid
+  asset_code     String
+  name           String
+  asset_type     AssetType
+  brand          String?
+  model          String?
+  serrial_number String?
+  purchase_date  DateTime?
+  purchase_price Int?
+  is_active      Boolean
+  Vehicle        Vehicle[]
+  Chassis        Chassis[]
+
+  @@map("assets")
+}
+
+model Vehicle {
+  id            String    @id @default(uuid()) @db.Uuid
+  license_plate String?
+  color         String?
+  year          Int?
+  engine_number String?
+  frame_number  String?
+  no_kir        String?
+  kir_due_date  DateTime?
+  stnk_due_date DateTime?
+  notes         String?
+  asset_id      String    @db.Uuid
+  asset         Asset     @relation(fields: [asset_id], references: [id])
+
+  @@map("vehicles")
+}
+
+model Chassis {
+  id               String      @id @default(uuid()) @db.Uuid
+  chassis_number   String
+  chassis_type     ChassisType
+  chassis_category String // 20 feat, 40 feat lowbed, dolly, other
+  axle_count       Int
+  no_kir           String?
+  kir_due_date     DateTime?
+  notes            String?
+  asset_id         String      @db.Uuid
+  asset            Asset       @relation(fields: [asset_id], references: [id])
+
+  @@map("chassises")
+}
