@@ -9,11 +9,56 @@ servers:
 
 tags:
   - name: Login Page
+  - name: Common
   - name: Home Page
   - name: Create Maintenence Page
   - name: History Maintenence Page
 
 paths:
+  /upload:
+    post:
+      tags: [Common]
+      summary: Upload File
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                path:
+                  type: string
+                  example: "asset_photo/"
+      responses:
+        "200":
+          description: Upload berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    items: true
+                  message:
+                    type: string
+                    example: "Login successful"
+                  data:
+                    type: object
+                    properties:
+                      file_url:
+                        type: string
+                        example: "http://example.com/uploads/asset_photo/file.jpg"
+        "500":
+          description: Unautorize
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /auth/_login:
     post:
       tags: [Login Page]
@@ -70,7 +115,7 @@ paths:
                     items: true
                   message:
                     type: string
-                    example: "User data retrieved successfully" 
+                    example: "User data retrieved successfully"
                   data:
                     $ref: "#/components/schemas/UserResponse"
 
@@ -104,7 +149,7 @@ paths:
                   success: { type: boolean }
                   message:
                     type: string
-                    example: "Maintenance records retrieved successfully" 
+                    example: "Maintenance records retrieved successfully"
                   data:
                     type: array
                     items:
@@ -273,7 +318,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/DriverResponse" 
+                      $ref: "#/components/schemas/DriverResponse"
   /maintenence:
     post:
       tags: [Create Maintenence Page]
@@ -429,7 +474,7 @@ paths:
                     items: true
                   message:
                     type: string
-                    example: "Maintenance record updated successfully"  
+                    example: "Maintenance record updated successfully"
                   data:
                     type: array
                     items:
@@ -588,13 +633,18 @@ components:
       properties:
         asset_id: { type: string, format: uuid }
         driver_id: { type: string, format: uuid }
-        asset_photo_url: { type: string, format: uri, example: "http://example.com/photo.jpg" }
+        asset_photo_url:
+          { type: string, format: uri, example: "http://example.com/photo.jpg" }
         repair_photo_urls:
-          { type: array, format: uri, example: ["http://example.com/photo1.jpg"] }
+          {
+            type: array,
+            format: uri,
+            example: ["http://example.com/photo1.jpg"],
+          }
         km_asset: { type: number, example: 12000 }
-        spareparts: 
+        spareparts:
           type: array
-          items: 
+          items:
             type: object
             properties:
               id: { type: string, format: uuid }
@@ -602,7 +652,7 @@ components:
         complaint: { type: string }
         repair_plan: { type: string }
       required: [asset_id, driver_id, sparepart_ids, complaint, repair_plan]
-   
+
     SparepartCreateRequest:
       type: object
       properties:

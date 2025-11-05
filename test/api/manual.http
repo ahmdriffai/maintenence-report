@@ -4,6 +4,7 @@
 @vehicleID=ee8648c9-1121-4765-a6b6-260e9458d621
 @chassisID=1359ed55-b3e1-4f3a-bd78-7f68472514b4
 @equipementID=7198ea19-32f1-4fd1-b961-98560c9faca5
+@sparepartID=42235bda-8bf4-4340-81fe-57a5f53f340a
 
 
 ### Register User
@@ -270,5 +271,51 @@ Authorization: Bearer {{token}}
 
 ### Delete Equipement
 DELETE {{baseUrl}}/api/equipments/{{equipementID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### Create Sparepart
+POST {{baseUrl}}/api/spareparts
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "code": "SPR-01",
+  "name": "Apa",
+  "unit": "pcs",
+  "price":2000000,
+  "stock_quantity":10,
+  "description": "no desc"
+}
+
+
+### Get All Sparepart
+GET {{baseUrl}}/api/spareparts
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Get Sparepart By Id
+GET {{baseUrl}}/api/spareparts/{{sparepartID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### Update Sparepart
+PATCH {{baseUrl}}/api/spareparts/{{sparepartID}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "code": "SPR-01",
+  "name": "Apa Edit",
+  "unit": "pcs",
+  "price":2000000,
+  "stock_quantity":10,
+  "description": "no desc"
+}
+
+### Deleta Sparepart
+DELETE {{baseUrl}}/api/spareparts/{{sparepartID}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
