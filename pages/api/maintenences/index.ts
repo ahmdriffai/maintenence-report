@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Prisma } from "@/generated/prisma/client";
 import { fail, success } from "@/lib/apiResponse";
+import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { verifyToken } from "@/pages/api-middleware/auth";
 import { CreateMaintenenceSchma } from "@/schema/maintenenceSchema";
 import jwt from "jsonwebtoken";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -23,29 +23,26 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 {
                   record_number: {
                     contains: search as string,
-                    mode: "insensitive",
                   },
                 },
                 {
                   complaint: {
                     contains: search as string,
-                    mode: "insensitive",
                   },
                 },
                 {
                   repair_notes: {
                     contains: search as string,
-                    mode: "insensitive",
                   },
                 },
                 {
                   asset: {
-                    name: { contains: search as string, mode: "insensitive" },
+                    name: { contains: search as string },
                   },
                 },
                 {
                   driver: {
-                    name: { contains: search as string, mode: "insensitive" },
+                    name: { contains: search as string },
                   },
                 },
               ],

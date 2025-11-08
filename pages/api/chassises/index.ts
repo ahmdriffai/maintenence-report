@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { fail, success } from "@/lib/apiResponse";
+import { verifyToken } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { verifyToken } from "@/pages/api-middleware/auth";
 import { CreateChessisSchema } from "@/schema/chassisSchema";
 import { NextApiRequest, NextApiResponse } from "next";
 import z from "zod";

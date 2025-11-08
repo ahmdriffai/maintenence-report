@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -32,7 +32,7 @@ enum ChassisType {
 }
 
 model User {
-  id           String        @id @default(uuid()) @db.Uuid
+  id           String        @id @default(uuid()) @db.Char(36)
   fullname     String
   username     String        @unique
   password     String
@@ -44,7 +44,7 @@ model User {
 }
 
 model Driver {
-  id            String        @id @default(uuid()) @db.Uuid
+  id            String        @id @default(uuid()) @db.Char(36)
   driver_number String
   name          String
   phone         String
@@ -56,7 +56,7 @@ model Driver {
 }
 
 model Asset {
-  id             String        @id @default(uuid()) @db.Uuid
+  id             String        @id @default(uuid()) @db.Char(36)
   asset_code     String
   name           String
   asset_type     AssetType
@@ -75,7 +75,7 @@ model Asset {
 }
 
 model Vehicle {
-  id            String    @id @default(uuid()) @db.Uuid
+  id            String    @id @default(uuid()) @db.Char(36)
   license_plate String?
   color         String?
   year          Int?
@@ -85,14 +85,14 @@ model Vehicle {
   kir_due_date  DateTime?
   stnk_due_date DateTime?
   notes         String?
-  asset_id      String    @unique @db.Uuid
+  asset_id      String    @unique @db.Char(36)
   asset         Asset     @relation(fields: [asset_id], references: [id])
 
   @@map("vehicles")
 }
 
 model Chassis {
-  id               String      @id @default(uuid()) @db.Uuid
+  id               String      @id @default(uuid()) @db.Char(36)
   chassis_number   String
   chassis_type     ChassisType
   chassis_category String // 20 feat, 40 feat lowbed, dolly, other
@@ -100,26 +100,26 @@ model Chassis {
   no_kir           String?
   kir_due_date     DateTime?
   notes            String?
-  asset_id         String      @unique @db.Uuid
+  asset_id         String      @unique @db.Char(36)
   asset            Asset       @relation(fields: [asset_id], references: [id])
 
   @@map("chassises")
 }
 
 model Equipment {
-  id             String @id @default(uuid()) @db.Uuid
+  id             String @id @default(uuid()) @db.Char(36)
   equipment_code String
   equipment_type String
   specification  String
   condition      String
-  asset_id       String @unique @db.Uuid
+  asset_id       String @unique @db.Char(36)
   asset          Asset  @relation(fields: [asset_id], references: [id])
 
   @@map("equipments")
 }
 
 model Sparepart {
-  id                    String                 @id @default(uuid()) @db.Uuid
+  id                    String                 @id @default(uuid()) @db.Char(36)
   code                  String
   name                  String
   unit                  String
@@ -132,15 +132,15 @@ model Sparepart {
 }
 
 model Maintenence {
-  id              String                 @id @default(uuid()) @db.Uuid
+  id              String                 @id @default(uuid()) @db.Char(36)
   record_number   String
-  user_id         String                 @db.Uuid
+  user_id         String                 @db.Char(36)
   user            User                   @relation(fields: [user_id], references: [id])
   complaint       String
   repair_notes    String
-  driver_id       String                 @db.Uuid
+  driver_id       String                 @db.Char(36)
   driver          Driver                 @relation(fields: [driver_id], references: [id])
-  asset_id        String                 @db.Uuid
+  asset_id        String                 @db.Char(36)
   asset           Asset                  @relation(fields: [asset_id], references: [id])
   km_asset        Int
   total_cost      Int
@@ -154,7 +154,7 @@ model Maintenence {
 }
 
 model Image {
-  id           String             @id @default(uuid()) @db.Uuid
+  id           String             @id @default(uuid()) @db.Char(36)
   url          String
   alt          String?
   maintenences MaintenenceImage[]
@@ -163,9 +163,9 @@ model Image {
 }
 
 model MaintenenceImage {
-  id             String      @id @default(uuid()) @db.Uuid
-  maintenence_id String      @db.Uuid
-  image_id       String      @db.Uuid
+  id             String      @id @default(uuid()) @db.Char(36)
+  maintenence_id String      @db.Char(36)
+  image_id       String      @db.Char(36)
   maintenence    Maintenence @relation(fields: [maintenence_id], references: [id])
   image          Image       @relation(fields: [image_id], references: [id])
 
@@ -174,9 +174,9 @@ model MaintenenceImage {
 }
 
 model MaintenenceSparepart {
-  id             String      @id @default(uuid()) @db.Uuid
-  maintenence_id String      @db.Uuid
-  sparepart_id   String      @db.Uuid
+  id             String      @id @default(uuid()) @db.Char(36)
+  maintenence_id String      @db.Char(36)
+  sparepart_id   String      @db.Char(36)
   maintenence    Maintenence @relation(fields: [maintenence_id], references: [id])
   sparepart      Sparepart   @relation(fields: [sparepart_id], references: [id])
 
