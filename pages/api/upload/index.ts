@@ -39,9 +39,10 @@ export default async function handler(
     const safeSubPath = requestedPath.replace(/^(\.\.[/\\])+/, ""); // hindari path traversal
     const uploadDir = path.join(
       process.cwd(),
-      "public",
+      "storage",
       safeSubPath || "uploads"
     );
+
     if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
     // ✅ Ambil file dari `files`
@@ -60,13 +61,17 @@ export default async function handler(
     const newPath = path.join(uploadDir, newFileName);
 
     // ✅ Pindahkan file dari tmp ke folder publik
-    fs.renameSync(fileData.filepath, newPath);
+    // fs.renameSync(fileData.filepath, newPath);
+    // fs.unlinkSync(fileData.filepath); // hapus file temp
+
+    await fs.promises.copyFile(fileData.filepath, newPath);
+    await fs.promises.unlink(fileData.filepath);
 
     // ✅ Bangun URL publik
     const baseUrl = process.env.BASE_URL ?? "http://localhost:3000";
-    const fileUrl = `${baseUrl}/${newPath
+    const fileUrl = `${baseUrl}/api/${safeSubPath
       .replace(`${process.cwd()}${path.sep}public${path.sep}`, "")
-      .replace(/\\/g, "/")}`;
+      .replace(/\\/g, "/")}/${newFileName}`;
 
     res.status(200).json({
       success: true,
