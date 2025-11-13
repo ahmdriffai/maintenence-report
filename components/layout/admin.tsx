@@ -49,15 +49,13 @@ const AdminLayout: React.FC<{
       label: "Sparepart",
       icon: ToolCase,
     },
-    // { id: "products", label: "Products", icon: Package },
-    // { id: "orders", label: "Orders", icon: ShoppingCart },
     { id: "users", to: "/admin/users", label: "Users", icon: Users },
-    {
-      id: "settings",
-      to: "/admin/settings",
-      label: "Settings",
-      icon: Settings,
-    },
+    // {
+    //   id: "settings",
+    //   to: "/admin/settings",
+    //   label: "Settings",
+    //   icon: Settings,
+    // },
   ];
 
   const { user, isLoading } = useAuthGuard();
