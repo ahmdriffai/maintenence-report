@@ -17,7 +17,7 @@ export default async function handler(
     const body = LoginUserSchema.parse(req.body);
 
     const user = await prisma.user.findUnique({
-      where: { username: body.username },
+      where: { username: body.username, role: body.role },
     });
 
     if (!user) return res.status(401).json(fail("invalid credential"));

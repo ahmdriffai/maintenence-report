@@ -15,15 +15,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         data: {
           asset: {
             create: {
-              asset_code: body.asset_code,
+              asset_code: body.asset.asset_code,
               is_active: true,
               asset_type: "VEHICLE",
-              name: body.name,
-              brand: body.brand,
-              model: body.model,
-              purchase_date: body.purchase_date,
-              purchase_price: body.purchase_price,
-              serrial_number: body.serial_number,
+              name: body.asset.name,
+              brand: body.asset.brand,
+              model: body.asset.model,
+              purchase_date: body.asset.purchase_date,
+              purchase_price: body.asset.purchase_price,
+              serrial_number: body.asset.serial_number,
             },
           },
           color: body.color,

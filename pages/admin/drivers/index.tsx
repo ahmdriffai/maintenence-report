@@ -9,7 +9,7 @@ const DriverPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>Daftar Driver</CardTitle>
+            <CardTitle>Daftar Asset</CardTitle>
           </CardHeader>
           <CardContent>
             <DriverTable />
@@ -17,7 +17,7 @@ const DriverPage: React.FC = () => {
         </Card>
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>Create Driver</CardTitle>
+            <CardTitle>Create Asset</CardTitle>
           </CardHeader>
           <CardContent>
             <DriverForm />

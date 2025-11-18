@@ -1,5 +1,7 @@
-@baseUrl = http://103.127.133.201:3003
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA4MzI0NWE5LTE3NzEtNGU4MS05ODAxLTA1MmU1MjMyMGFiZSIsInVzZXJuYW1lIjoicmlmYWkiLCJpYXQiOjE3NjI2NjUwMzgsImV4cCI6MTc2Mjc1MTQzOH0.k7tSzmJmnasWP0MQjASHHSW6049ynT4fSEm_NPM4EBc
+# @baseUrl = http://103.127.133.201:3000
+@baseUrl = http://localhost:3000
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRiOTFmM2YxLTExN2EtNDI0ZS1iOTlmLTkxM2Y2NWEyMmI4OSIsInVzZXJuYW1lIjoicmlmYWlpIiwiaWF0IjoxNzYzNDI5MjE1LCJleHAiOjE3NjM0MzEwMTV9.XpRE_8CD8ScidWSeb1HHKK97HOWlrpdBaXG1kiVVg48
 @driverID=60a38562-2a9b-4fe9-ae78-badc6be410f5
 @vehicleID=1983350b-8844-4ce1-ac7a-d4fe417dc80e
 @chassisID=1359ed55-b3e1-4f3a-bd78-7f68472514b4
@@ -16,7 +18,7 @@ Content-Type: application/json
 
 {
   "fullname": "Ahmad Rifai",
-  "username": "rifai",
+  "username": "rifaii",
   "password": "rahasia",
   "role": "ADMIN"
 }
@@ -26,8 +28,9 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "rifai",
-  "password": "rahasia"
+  "username": "rifaii",
+  "password": "rahasia",
+  "role": "ADMIN"
 }
 
 ### Current User / Me
@@ -85,13 +88,15 @@ Authorization: Bearer {{token}}
 
 {
   // asset
-  "asset_code": "1235",
-  "name": "Mobil Eropa",
-  "brand": "Yamasa",
-  "model": "modal",
-  "serial_number": "xxx",
-  "purchase_date": "2021-06-12",
-  "purchase_price": 1000000,
+  "asset":{
+    "asset_code": "1235",
+    "name": "Mobil Eropa",
+    "brand": "Yamasa",
+    "model": "modal",
+    "serial_number": "xxx",
+    "purchase_date": "2021-06-12",
+    "purchase_price": 1000000
+  },
 
   // vehicle
   "license_plate": "AA 5504 ABC",
@@ -124,13 +129,15 @@ Authorization: Bearer {{token}}
 
 {
   // asset
-  "asset_code": "12354",
-  "name": "Mobil Eropa Edit Sekali",
-  "brand": "Yamasa",
-  "model": "modal",
-  "serial_number": "xxx",
-  "purchase_date": "2021-06-12",
-  "purchase_price": 1000000,
+  "asset": {
+    "asset_code": "12354",
+    "name": "Mobil Eropa Edit Sekali",
+    "brand": "Yamasa",
+    "model": "modal",
+    "serial_number": "xxx",
+    "purchase_date": "2021-06-12",
+    "purchase_price": 1000000
+  },
 
   // vehicle
   "license_plate": "AA 5504 ABC",
@@ -157,13 +164,15 @@ Authorization: Bearer {{token}}
 
 {
   // asset
-  "asset_code": "12354",
-  "name": "Mobil Eropa Edit Sekali",
-  "brand": "Yamasa",
-  "model": "modal",
-  "serial_number": "xxx",
-  "purchase_date": "2021-06-12",
-  "purchase_price": 1000000,
+  "asset":{
+    "asset_code": "12354",
+    "name": "Mobil Eropa Edit Sekali",
+    "brand": "Yamasa",
+    "model": "modal",
+    "serial_number": "xxx",
+    "purchase_date": "2021-06-12",
+    "purchase_price": 1000000
+  },
 
   // chassis
   "chassis_number": "124",
@@ -193,13 +202,15 @@ Authorization: Bearer {{token}}
 
 {
   // asset
-  "asset_code": "12354",
-  "name": "Mobil Eropa Yak gaesd",
-  "brand": "Yamasa",
-  "model": "modal",
-  "serial_number": "xxxd",
-  "purchase_date": "2021-06-12",
-  "purchase_price": 1000000,
+  "asset": {
+    "asset_code": "12354",
+    "name": "Mobil Eropa Yak gaesd",
+    "brand": "Yamasa",
+    "model": "modal",
+    "serial_number": "xxxd",
+    "purchase_date": "2021-06-12",
+    "purchase_price": 1000000
+  },
 
   // chassis
   "chassis_number": "124",
@@ -229,13 +240,15 @@ Authorization: Bearer {{token}}
 
 {
   // asset
-  "asset_code": "12354",
-  "name": "Mobil Eropa Yak gaesd",
-  "brand": "Yamasa",
-  "model": "modal",
-  "serial_number": "xxxd",
-  "purchase_date": "2021-06-12",
-  "purchase_price": 1000000,
+  "asset": {
+    "asset_code": "12354",
+    "name": "Mobil Eropa Yak gaesd",
+    "brand": "Yamasa",
+    "model": "modal",
+    "serial_number": "xxxd",
+    "purchase_date": "2021-06-12",
+    "purchase_price": 1000000
+  },
 
   // equipment
   "equipment_code": "123",
@@ -257,13 +270,15 @@ Authorization: Bearer {{token}}
 
 {
   // asset
-  "asset_code": "12354",
-  "name": "Mobil Eropa Yak gaesd",
-  "brand": "Yamasa",
-  "model": "modal",
-  "serial_number": "xxxdd",
-  "purchase_date": "2021-06-12",
-  "purchase_price": 1000000,
+  "asset": {
+    "asset_code": "12354",
+    "name": "Mobil Eropa Yak gaesd",
+    "brand": "Yamasa",
+    "model": "modal",
+    "serial_number": "xxxdd",
+    "purchase_date": "2021-06-12",
+    "purchase_price": 1000000
+  },
 
   // equipment
   "equipment_code": "1233",
