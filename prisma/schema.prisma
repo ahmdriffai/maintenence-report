@@ -50,6 +50,7 @@ model Driver {
   phone         String
   notes         String?
   is_active     Boolean
+  createdAt     DateTime      @default(now())
   maintenences  Maintenence[]
 
   @@map("drivers")
@@ -66,6 +67,7 @@ model Asset {
   purchase_date  DateTime?
   purchase_price Int?
   is_active      Boolean
+  createdAt      DateTime      @default(now())
   vehicle        Vehicle?
   chassis        Chassis?
   equipment      Equipment?
@@ -85,6 +87,7 @@ model Vehicle {
   kir_due_date  DateTime?
   stnk_due_date DateTime?
   notes         String?
+  createdAt     DateTime  @default(now())
   asset_id      String    @unique @db.Char(36)
   asset         Asset     @relation(fields: [asset_id], references: [id])
 
@@ -100,6 +103,7 @@ model Chassis {
   no_kir           String?
   kir_due_date     DateTime?
   notes            String?
+  createdAt        DateTime    @default(now())
   asset_id         String      @unique @db.Char(36)
   asset            Asset       @relation(fields: [asset_id], references: [id])
 
@@ -107,13 +111,14 @@ model Chassis {
 }
 
 model Equipment {
-  id             String @id @default(uuid()) @db.Char(36)
+  id             String   @id @default(uuid()) @db.Char(36)
   equipment_code String
   equipment_type String
   specification  String
   condition      String
-  asset_id       String @unique @db.Char(36)
-  asset          Asset  @relation(fields: [asset_id], references: [id])
+  createdAt      DateTime @default(now())
+  asset_id       String   @unique @db.Char(36)
+  asset          Asset    @relation(fields: [asset_id], references: [id])
 
   @@map("equipments")
 }
@@ -126,6 +131,7 @@ model Sparepart {
   price                 Int
   stock_quantity        Int
   description           String
+  createdAt             DateTime               @default(now())
   maintenenceSpareparts MaintenenceSparepart[]
 
   @@map("spareparts")
@@ -147,6 +153,7 @@ model Maintenence {
   labor_cost      Int
   spareparts_cost Int
   asset_image_url String
+  createdAt       DateTime               @default(now())
   spareparts      MaintenenceSparepart[]
   images          MaintenenceImage[]
 
@@ -157,6 +164,7 @@ model Image {
   id           String             @id @default(uuid()) @db.Char(36)
   url          String
   alt          String?
+  createdAt    DateTime           @default(now())
   maintenences MaintenenceImage[]
 
   @@map("images")
@@ -168,6 +176,7 @@ model MaintenenceImage {
   image_id       String      @db.Char(36)
   maintenence    Maintenence @relation(fields: [maintenence_id], references: [id])
   image          Image       @relation(fields: [image_id], references: [id])
+  createdAt      DateTime    @default(now())
 
   @@unique([maintenence_id, image_id])
   @@map("maintenence_images")
@@ -177,8 +186,10 @@ model MaintenenceSparepart {
   id             String      @id @default(uuid()) @db.Char(36)
   maintenence_id String      @db.Char(36)
   sparepart_id   String      @db.Char(36)
+  total          Int         @default(0)
   maintenence    Maintenence @relation(fields: [maintenence_id], references: [id])
   sparepart      Sparepart   @relation(fields: [sparepart_id], references: [id])
+  createdAt      DateTime    @default(now())
 
   @@unique([maintenence_id, sparepart_id])
   @@map("maintenence_spareparts")
