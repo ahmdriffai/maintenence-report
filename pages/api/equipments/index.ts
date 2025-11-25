@@ -10,7 +10,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     switch (req.method) {
       case "GET": {
-        const equipments = await prisma.equipment.findMany();
+        const equipments = await prisma.equipment.findMany({
+          include: {
+            asset: true,
+          },
+        });
         return res.status(200).json(success(equipments));
       }
       case "POST": {
@@ -20,15 +24,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           data: {
             asset: {
               create: {
-                asset_code: body.asset_code,
+                asset_code: body.asset.asset_code,
                 is_active: true,
                 asset_type: "EQUIPMENT",
-                name: body.name,
-                brand: body.brand,
-                model: body.model,
-                purchase_date: body.purchase_date,
-                purchase_price: body.purchase_price,
-                serrial_number: body.serial_number,
+                name: body.asset.name,
+                brand: body.asset.brand,
+                model: body.asset.model,
+                purchase_date: body.asset.purchase_date,
+                purchase_price: body.asset.purchase_price,
+                serrial_number: body.asset.serial_number,
               },
             },
             condition: body.condition,

@@ -15,6 +15,7 @@ import {
   User,
   Users,
   UserStar,
+  Wrench,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -31,6 +32,12 @@ const AdminLayout: React.FC<{
 
   const menuItems = [
     { id: "dashboard", to: "/admin/dashboard", label: "Dashboard", icon: Home },
+    {
+      id: "maintenence",
+      to: "/admin/maintenences",
+      label: "Maintenence",
+      icon: Wrench,
+    },
     {
       id: "drivers",
       to: "/admin/drivers",
@@ -49,15 +56,13 @@ const AdminLayout: React.FC<{
       label: "Sparepart",
       icon: ToolCase,
     },
-    // { id: "products", label: "Products", icon: Package },
-    // { id: "orders", label: "Orders", icon: ShoppingCart },
     { id: "users", to: "/admin/users", label: "Users", icon: Users },
-    {
-      id: "settings",
-      to: "/admin/settings",
-      label: "Settings",
-      icon: Settings,
-    },
+    // {
+    //   id: "settings",
+    //   to: "/admin/settings",
+    //   label: "Settings",
+    //   icon: Settings,
+    // },
   ];
 
   const { user, isLoading } = useAuthGuard();

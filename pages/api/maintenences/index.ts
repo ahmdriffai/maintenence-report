@@ -12,12 +12,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     switch (req.method) {
       case "GET": {
-        const { page = 1, size = 10, search = "" } = req.query;
+        const {
+          page = 1,
+          size = 10,
+          search = "",
+          startDate,
+          endDate,
+        } = req.query;
 
         const skip = (Number(page) - 1) * Number(size);
         const take = Number(size);
 
-        const where: Prisma.MaintenenceWhereInput = search
+        const searchFilter: Prisma.MaintenenceWhereInput = search
           ? {
               OR: [
                 {
@@ -49,6 +55,37 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             }
           : {};
 
+        // Build filter untuk tanggal created_at
+        let dateFilter: Prisma.MaintenenceWhereInput = {};
+
+        if (startDate && endDate) {
+          dateFilter = {
+            createdAt: {
+              gte: new Date(startDate as string),
+              lte: new Date(endDate as string),
+            },
+          };
+        } else if (startDate) {
+          // hanya start date
+          dateFilter = {
+            createdAt: {
+              gte: new Date(startDate as string),
+            },
+          };
+        } else if (endDate) {
+          // hanya end date
+          dateFilter = {
+            createdAt: {
+              lte: new Date(endDate as string),
+            },
+          };
+        }
+
+        // gabungkan semua filter
+        const where: Prisma.MaintenenceWhereInput = {
+          AND: [searchFilter, dateFilter],
+        };
+
         // Hitung total untuk pagination
         const total = await prisma.maintenence.count({ where });
 
@@ -77,7 +114,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         const formatted = maintenences.map((m) => ({
           ...m,
           images: m.images?.map((pivot) => pivot.image), // ambil langsung objek image-nya
-          spareparts: m.spareparts?.map((pivot) => pivot.sparepart),
+          // spareparts: m.spareparts?.map((pivot) => pivot.sparepart),
         }));
 
         return res.status(200).json({
@@ -170,12 +207,23 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         });
 
         // Hubungkan spareparts yang sudah ada
-        await prisma.maintenenceSparepart.createMany({
-          data: body.spareparts.map((sparepart) => ({
-            maintenence_id: maintenence.id,
-            sparepart_id: sparepart.id,
-          })),
-        });
+        await Promise.all(
+          body.spareparts.map((sparepart) =>
+            prisma.maintenenceSparepart.create({
+              data: {
+                maintenence_id: maintenence.id,
+                sparepart_id: sparepart.id,
+                total: sparepart.quantity,
+              },
+            })
+          )
+        );
+        // await prisma.maintenenceSparepart.createMany({
+        //   data: body.spareparts.map((sparepart) => ({
+        //     maintenence_id: maintenence.id,
+        //     sparepart_id: sparepart.id,
+        //   })),
+        // });
 
         await prisma.maintenenceImage.createMany({
           data: createImages.map((img) => ({
@@ -215,8 +263,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         const result = {
           ...getMaintenence,
           images: getMaintenence?.images.map((pivot) => pivot.image) ?? [],
-          spareparts:
-            getMaintenence?.spareparts.map((pivot) => pivot.sparepart) ?? [],
+          // spareparts:
+          //   getMaintenence?.spareparts.map((pivot) => pivot.sparepart) ?? [],
         };
 
         return res.status(201).json(success(result));

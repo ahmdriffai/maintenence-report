@@ -1,0 +1,45 @@
+import { Prisma } from "@/generated/prisma/client";
+import api from "@/lib/fetcher";
+import { CreateChessisSchema } from "@/schema/chassisSchema";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { toast } from "sonner";
+import z from "zod";
+
+type ChassisWithAsset = Prisma.ChassisGetPayload<{
+  include: { asset: true };
+}>;
+
+// get all chassis
+export const useGetAllChassis = () => {
+  return useQuery<ChassisWithAsset[]>({
+    queryKey: ["chassises"],
+    queryFn: async () => {
+      const res = await api.get(`/chassises`);
+      return res.data.data;
+    },
+  });
+};
+
+// create Chassis
+export const useCreateChassis = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: z.infer<typeof CreateChessisSchema>) => {
+      const res = await api.post(`/chassises`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chassises"] });
+      toast.success("Asset created successfully");
+      router.push("/admin/assets?asset=chassis");
+      setTimeout(() => {
+        router.reload();
+      }, 1000);
+    },
+    onError: () => {
+      toast.error("Failed to create Asset");
+    },
+  });
+};
