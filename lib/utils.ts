@@ -29,4 +29,3 @@ export function getNextGeneratedNumber(
 
   return `${prefix}${String(lastNumber + 1).padStart(padLength, "0")}`;
 }
-

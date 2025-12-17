@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Prisma } from "@/generated/prisma/browser";
+import { Asset } from "@/generated/prisma/client";
 import { useDeleteChassis, useGetAllChassis } from "@/hooks/useChassis";
 import { useDeleteVehicle } from "@/hooks/useVehicle";
 
@@ -37,7 +38,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
+import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
 import React from "react";
 
 type ChassisWithAsset = Prisma.ChassisGetPayload<{
@@ -72,6 +73,32 @@ export const columns: ColumnDef<ChassisWithAsset>[] = [
     header: "No",
     cell: ({ row }) => <div className="capitalize">{row.index + 1}</div>,
   },
+{
+    accessorKey: "asset.name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Nama
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const asset = row.original.asset as Asset;
+
+      return (
+        <div className="flex flex-col">
+          <span className="font-semibold">{asset?.name}</span>
+          <span className="text-sm text-muted-foreground">
+            tipe: {row.original.chassis_type}
+          </span>
+        </div>
+      );
+    },
+  },
 
   {
     accessorKey: "asset.code",
@@ -80,7 +107,20 @@ export const columns: ColumnDef<ChassisWithAsset>[] = [
       <div className="capitalize">{row.original.asset.asset_code}</div>
     ),
   },
-
+  {
+      accessorKey: "chassis_category",
+      header: "Kategori",
+      cell: ({ row }) => {
+        return (
+          <div className="flex flex-col">
+            <span className="font-semibold">{row.getValue("chassis_category")}</span>
+            <span className="text-xs text-muted-foreground">
+              axle: {row.original.axle_count}
+            </span>
+          </div>
+      );
+    },
+  },
   {
     accessorKey: "no_kir",
     header: "Nomor KIR",
