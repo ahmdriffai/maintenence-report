@@ -40,6 +40,7 @@ import {
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
 import React from "react";
+import ChassisEditForm from "./ChassisEditForm";
 
 type ChassisWithAsset = Prisma.ChassisGetPayload<{
   include: { asset: true };
@@ -158,8 +159,8 @@ export const columns: ColumnDef<ChassisWithAsset>[] = [
       const chassis = row.original;
        return (
         <div className="flex justify-end gap-2">
-          {/* <ViewVehicle vehicle={vehicle} />
-          <EditVehicle vehicle={vehicle} /> */}
+          {/* /* <ViewVehicle vehicle={vehicle} /> */}
+          <EditChassis chassis={chassis} /> 
           <DeleteChassis chassisId={chassis.id} />
         </div>
       );
@@ -353,6 +354,41 @@ const DeleteChassis = ({ chassisId }: { chassisId: string }) => {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  );
+};
+
+const EditChassis = ({ chassis }: { chassis: ChassisWithAsset }) => {
+  // Mapping data dari DB/API ke struktur Zod Schema
+  const defaultValues = {
+    // Mapping dari Asset (Table/Relation)
+    asset_code: chassis.asset.asset_code,
+    name: chassis.asset.name,
+    brand: chassis.asset.brand ?? undefined,
+    model: chassis.asset.model ?? undefined,
+    serial_number: chassis.asset.serrial_number ?? undefined, // Typo fixed from 'serrial_number'
+    purchase_date: chassis.asset.purchase_date
+      ? new Date(chassis.asset.purchase_date)
+      : undefined,
+    purchase_price: chassis.asset.purchase_price ?? undefined,
+    is_active: chassis.asset.is_active,
+
+    // Mapping dari Chassis (Table) sesuai UpdateChassisSchema
+    chassis_number: chassis.chassis_number ?? undefined,
+    chassis_category: chassis.chassis_category ?? undefined,
+    chassis_type: (chassis.chassis_type as "RANGKA" | "FLATBED") ?? undefined,
+    axle_count: chassis.axle_count ?? undefined,
+    no_kir: chassis.no_kir ?? undefined,
+    kir_due_date: chassis.kir_due_date
+      ? new Date(chassis.kir_due_date)
+      : undefined,
+    notes: chassis.notes ?? undefined,
+  };
+
+  return (
+    <ChassisEditForm
+      chassisId={chassis.id}
+      defaultValues={defaultValues}
+    />
   );
 };
 

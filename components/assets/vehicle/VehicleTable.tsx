@@ -177,7 +177,7 @@ export const columns: ColumnDef<VehicleWithAsset>[] = [
 
       return (
         <div className="flex justify-end gap-2">
-          <ViewVehicle vehicle={vehicle} />
+          {/* <ViewVehicle vehicle={vehicle} /> */}
           <EditVehicle vehicle={vehicle} />
           <DeleteVehicle vehicleId={vehicle.id} />
         </div>

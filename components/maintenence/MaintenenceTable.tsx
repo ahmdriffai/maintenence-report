@@ -87,13 +87,6 @@ export const columns: ColumnDef<Maintenence>[] = [
     ),
   },
   {
-    accessorKey: "total_cost",
-    header: "Total",
-    cell: ({ row }) => (
-      <div className="capitalize">Rp. {row.original.total_cost}</div>
-    ),
-  },
-  {
     accessorKey: "user_id",
     header: "User",
     cell: ({ row }) => (
@@ -108,10 +101,10 @@ export const columns: ColumnDef<Maintenence>[] = [
     ),
   },
   {
-    accessorKey: "user_id",
-    header: "User",
+    accessorKey: "asset.asset_type",
+    header: "Jenis Aset",
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.user.fullname}</div>
+      <div className="capitalize">{row.original.asset.asset_type}</div>
     ),
   },
   {
@@ -169,12 +162,12 @@ const MaintenenceTable: React.FC = () => {
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter fullnames..."
+          placeholder="Filter nomor laporan..."
           value={
-            (table.getColumn("fullname")?.getFilterValue() as string) ?? ""
+            (table.getColumn("record_number")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn("fullname")?.setFilterValue(event.target.value)
+            table.getColumn("record_number")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

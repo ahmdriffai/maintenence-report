@@ -81,7 +81,7 @@ const EquipmentForm: React.FC<Props> = ({ asset, onPrevius }) => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Tipe Chassis</SelectLabel>
+                      <SelectLabel>Kondisi</SelectLabel>
                       {condition.map((con, index) => (
                         <SelectItem key={index} value={con}>
                           {con}

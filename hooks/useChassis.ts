@@ -1,6 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import api from "@/lib/fetcher";
-import { CreateChessisSchema } from "@/schema/chassisSchema";
+import { CreateChessisSchema, UpdateChassisSchema } from "@/schema/chassisSchema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
@@ -57,6 +57,23 @@ export const useDeleteChassis = () => {
     },
     onError: () => {
       toast.error("Failed to delete Chassis");
+    },
+  });
+};
+
+export const useUpdateChassis = (chassisId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Partial<z.infer<typeof UpdateChassisSchema>>) => {
+      const res = await api.patch(`/chassises/${chassisId}`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chassises"] });
+      toast.success("Chassis updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update Chassis");
     },
   });
 };
