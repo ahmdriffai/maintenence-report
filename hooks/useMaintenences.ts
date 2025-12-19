@@ -34,3 +34,21 @@ export const useDeleteMaintenence = () => {
     },
   });
 };
+
+export const useUpdateMaintenence = (maintenenceId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Partial<Maintenence>) => {
+      const res = await api.put(`/maintenences/${maintenenceId}`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["maintenences"] });
+      toast.success("Maintenence updated successfully");
+    },
+    onError: (error: unknown) => {
+      handleApiError(error, "Maintenence update failed");
+    },
+  });
+};
