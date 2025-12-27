@@ -25,7 +25,7 @@ const DashboardPage: React.FC = () => {
           <CardContent>
             <CardTitle className="text-2xl font-bold">$45,231</CardTitle>
             <p className="text-xs text-green-600 font-medium mt-1">
-              +20.1% from last month
+              +20.1% dari bulan terakhir.
             </p>
           </CardContent>
         </Card>
