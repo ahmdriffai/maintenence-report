@@ -71,7 +71,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const browser = await puppeteer.launch({
       headless: true,
       // disable if running locally
-      executablePath: process.env.NODE_ENV === "production" ? "/usr/bin/chromium-browser" : undefined,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
