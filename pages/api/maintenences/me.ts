@@ -100,7 +100,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const formatted = maintenences.map((m) => ({
       ...m,
       images: m.images?.map((pivot) => pivot.image),
-      spareparts: m.spareparts?.map((pivot) => pivot.sparepart),
+      // spareparts: m.spareparts?.map((pivot) => pivot.sparepart),
     }));
 
     return res.status(200).json({
