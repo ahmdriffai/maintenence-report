@@ -1,6 +1,6 @@
 import { CreateAssetSchema } from "@/schema/assetSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDownIcon, Plus } from "lucide-react";
+import { CalendarIcon, ChevronDownIcon, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import z from "zod";
@@ -43,6 +43,7 @@ import { Separator } from "../ui/separator";
 import ChassisForm from "./chassis/ChassisForm";
 import EquipmentForm from "./equipment/EquipementForm";
 import VehicleForm from "./vehicle/VehicleForm";
+import { formatDate, parseDate } from "@/lib/formatDate";
 
 const AssetForm: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -227,36 +228,75 @@ const AssetForm: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tanggal Pembelian</FormLabel>
-                    <FormControl>
+
+                    <div className="flex gap-2">
+                      {/* INPUT MANUAL */}
+                      <FormControl>
+                        <Input
+                          placeholder="DD/MM/YYYY"
+                          value={formatDate(field.value)}
+                          onChange={(e) => {
+                            const parsed = parseDate(e.target.value);
+                            field.onChange(parsed);
+                          }}
+                        />
+                      </FormControl>
+
+                      {/* DATE PICKER */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            id="date"
-                            className="w-full justify-between font-normal"
-                          >
-                            {field.value
-                              ? field.value.toLocaleDateString()
-                              : "Select date"}
-                            <ChevronDownIcon />
+                          <Button variant="outline" size="icon">
+                            <CalendarIcon className="h-4 w-4" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent
-                          className="w-auto overflow-hidden p-0"
-                          align="start"
-                        >
+
+                        <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value ?? undefined}
-                            onSelect={(date) =>
-                              field.onChange(date ?? undefined)
-                            }
+                            selected={field.value}
+                            onSelect={(date) => field.onChange(date ?? undefined)}
+                            captionLayout="dropdown"   // 🔥 bulan & tahun dropdown
+                            fromYear={1990}
+                            toYear={2100}
                           />
                         </PopoverContent>
                       </Popover>
-                    </FormControl>
+                    </div>
+
                     <FormMessage />
                   </FormItem>
+                  // <FormItem>
+                  //   <FormLabel>Tanggal Pembelian</FormLabel>
+                  //   <FormControl>
+                  //     <Popover>
+                  //       <PopoverTrigger asChild>
+                  //         <Button
+                  //           variant="outline"
+                  //           id="date"
+                  //           className="w-full justify-between font-normal"
+                  //         >
+                  //           {field.value
+                  //             ? field.value.toLocaleDateString()
+                  //             : "Select date"}
+                  //           <ChevronDownIcon />
+                  //         </Button>
+                  //       </PopoverTrigger>
+                  //       <PopoverContent
+                  //         className="w-auto overflow-hidden p-0"
+                  //         align="start"
+                  //       >
+                  //         <Calendar
+                  //           mode="single"
+                  //           selected={field.value ?? undefined}
+                  //           onSelect={(date) =>
+                  //             field.onChange(date ?? undefined)
+                  //           }
+                  //         />
+                  //       </PopoverContent>
+                  //     </Popover>
+                  //   </FormControl>
+                  //   <FormMessage />
+                  // </FormItem>
                 )}
               />
 

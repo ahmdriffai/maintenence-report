@@ -1,7 +1,7 @@
 import { useUpdateDriver } from "@/hooks/useDriver";
 import { UpdateDriverSchema } from "@/schema/driverSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDownIcon, Loader2Icon, Pencil, PencilIcon } from "lucide-react";
+import { CalendarIcon, ChevronDownIcon, Loader2Icon, Pencil, PencilIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "../ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
+import { formatDate, parseDate } from "@/lib/formatDate";
 
 type FormValues = z.infer<typeof UpdateDriverSchema>;
 
@@ -138,38 +139,52 @@ const DriverEditDialog: React.FC<Props> = ({ driver }) => {
                   control={form.control}
                   name="sim_due_date"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tanggal Kadaluarsa SIM</FormLabel>
+                    <FormField
+                control={form.control}
+                name="sim_due_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tanggal Kadaluarsa SIM</FormLabel>
+
+                    <div className="flex gap-2">
+                      {/* INPUT MANUAL */}
                       <FormControl>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              id="date"
-                              className="w-full justify-between font-normal"
-                            >
-                              {field.value
-                                ? new Date(field.value).toLocaleDateString("id-ID")
-                                : "Select date"}
-                              <ChevronDownIcon />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent
-                            className="w-auto overflow-hidden p-0"
-                            align="start"
-                          >
-                            <Calendar
-                              mode="single"
-                              selected={field.value ?? undefined}
-                              onSelect={(date) =>
-                                field.onChange(date ?? undefined)
-                              }
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <Input
+                          placeholder="DD/MM/YYYY"
+                          value={formatDate(field.value)}
+                          disabled
+                          onChange={(e) => {
+                            const parsed = parseDate(e.target.value);
+                            field.onChange(parsed);
+                          }}
+                        />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
+
+                      {/* DATE PICKER */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="icon">
+                            <CalendarIcon className="h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => field.onChange(date ?? undefined)}
+                            captionLayout="dropdown"   // 🔥 bulan & tahun dropdown
+                            fromYear={1990}
+                            toYear={2100}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                   )}
                 />
 
