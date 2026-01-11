@@ -109,6 +109,13 @@ export const columns: ColumnDef<ChassisWithAsset>[] = [
     ),
   },
   {
+    accessorKey: "asset.serrial_number",
+    header: "Serial Number",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.original.asset.serrial_number}</div>
+    ),
+  },
+  {
       accessorKey: "chassis_category",
       header: "Kategori",
       cell: ({ row }) => {
@@ -122,6 +129,7 @@ export const columns: ColumnDef<ChassisWithAsset>[] = [
       );
     },
   },
+  
   {
     accessorKey: "no_kir",
     header: "Nomor KIR",

@@ -1,7 +1,7 @@
 import { useCreateDriver } from "@/hooks/useDriver";
 import { CreateDriverSchema } from "@/schema/driverSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDownIcon, Loader2Icon } from "lucide-react";
+import { CalendarIcon, ChevronDownIcon, Loader2Icon } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { Resolver, useForm } from "react-hook-form";
 import z, { unknown } from "zod";
@@ -18,6 +18,7 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { formatDate, parseDate } from "@/lib/formatDate";
 
 const DriverForm: React.FC = () => {
   const form = useForm<z.infer<typeof CreateDriverSchema>>({
@@ -71,44 +72,52 @@ const DriverForm: React.FC = () => {
               )}
             />
 
-            <FormField
+              <FormField
                 control={form.control}
                 name="sim_due_date"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tanggal Kadaluarsa SIM</FormLabel>
-                    <FormControl>
+
+                    <div className="flex gap-2">
+                      {/* INPUT MANUAL */}
+                      <FormControl>
+                        <Input
+                          placeholder="DD/MM/YYYY"
+                          value={formatDate(field.value)}
+                          onChange={(e) => {
+                            const parsed = parseDate(e.target.value);
+                            field.onChange(parsed);
+                          }}
+                        />
+                      </FormControl>
+
+                      {/* DATE PICKER */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            id="date"
-                            className="w-full justify-between font-normal"
-                          >
-                            {field.value
-                              ? field.value.toLocaleDateString()
-                              : "Select date"}
-                            <ChevronDownIcon />
+                          <Button variant="outline" size="icon">
+                            <CalendarIcon className="h-4 w-4" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent
-                          className="w-auto overflow-hidden p-0"
-                          align="start"
-                        >
+
+                        <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value ?? undefined}
-                            onSelect={(date) =>
-                              field.onChange(date ?? undefined)
-                            }
+                            selected={field.value}
+                            onSelect={(date) => field.onChange(date ?? undefined)}
+                            captionLayout="dropdown"   // 🔥 bulan & tahun dropdown
+                            fromYear={1990}
+                            toYear={2100}
                           />
                         </PopoverContent>
                       </Popover>
-                    </FormControl>
+                    </div>
+
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
 
             <FormField
               control={form.control}

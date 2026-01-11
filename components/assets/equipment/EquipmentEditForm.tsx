@@ -25,10 +25,11 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useUpdateEquipment } from "@/hooks/useEquipment"; // Diasumsikan nama hook ini
+import { formatDate, parseDate } from "@/lib/formatDate";
 import { UpdateEquipmentSchema } from "@/schema/equipmentSchema"; // Diasumsikan nama skema ini
 import { zodResolver } from "@hookform/resolvers/zod";
 import { de } from "date-fns/locale";
-import { ChevronDownIcon, Loader2Icon, Pencil } from "lucide-react";
+import { CalendarIcon, ChevronDownIcon, Loader2Icon, Pencil } from "lucide-react";
 import { useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import z from "zod";
@@ -191,32 +192,72 @@ const EquipmentEditForm: React.FC<Props> = ({
               control={form.control}
               name="purchase_date"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tanggal Pembelian</FormLabel>
-                  <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-between font-normal"
-                        >
-                          {field.value
-                            ? new Date(field.value).toLocaleDateString()
-                            : "Pilih tanggal"}
-                          <ChevronDownIcon />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
+                // <FormItem>
+                //   <FormLabel>Tanggal Pembelian</FormLabel>
+                //   <FormControl>
+                //     <Popover>
+                //       <PopoverTrigger asChild>
+                //         <Button
+                //           variant="outline"
+                //           className="w-full justify-between font-normal"
+                //         >
+                //           {field.value
+                //             ? new Date(field.value).toLocaleDateString()
+                //             : "Pilih tanggal"}
+                //           <ChevronDownIcon />
+                //         </Button>
+                //       </PopoverTrigger>
+                //       <PopoverContent className="w-auto p-0">
+                //         <Calendar
+                //           mode="single"
+                //           selected={field.value}
+                //           onSelect={field.onChange}
+                //         />
+                //       </PopoverContent>
+                //     </Popover>
+                //   </FormControl>
+                //   <FormMessage />
+                // </FormItem>
+                 <FormItem>
+                    <FormLabel>Tanggal Pembelian</FormLabel>
+
+                    <div className="flex gap-2">
+                      {/* INPUT MANUAL */}
+                      <FormControl>
+                        <Input
+                          placeholder="DD/MM/YYYY"
+                          value={formatDate(field.value)}
+                          disabled
+                          onChange={(e) => {
+                            const parsed = parseDate(e.target.value);
+                            field.onChange(parsed);
+                          }}
                         />
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                      </FormControl>
+
+                      {/* DATE PICKER */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="icon">
+                            <CalendarIcon className="h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => field.onChange(date ?? undefined)}
+                            captionLayout="dropdown"   // 🔥 bulan & tahun dropdown
+                            fromYear={1990}
+                            toYear={2100}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <FormMessage />
+                  </FormItem>
               )}
             />
 
