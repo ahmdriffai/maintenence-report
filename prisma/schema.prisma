@@ -40,6 +40,7 @@ model User {
   password     String
   role         Role          @default(USER)
   createdAt    DateTime      @default(now())
+  deletedAt    DateTime?
   maintenences Maintenence[]
   is_active    Boolean       @default(true)
 
@@ -90,7 +91,10 @@ model Vehicle {
   no_kir        String?
   kir_due_date  DateTime?
   stnk_due_date DateTime?
+  stnk_number   String?
   notes         String?
+  owner            String?
+  address          String?
   createdAt     DateTime  @default(now())
   asset_id      String    @unique @db.Char(36)
   asset         Asset     @relation(fields: [asset_id], references: [id])
@@ -160,6 +164,7 @@ model Maintenence {
   labor_cost      Int
   spareparts_cost Int
   asset_image_url String
+  done_by         String?
   location        String?
   createdAt       DateTime               @default(now())
   spareparts      MaintenenceSparepart[]

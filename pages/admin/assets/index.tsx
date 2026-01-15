@@ -19,27 +19,47 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useBulkCreateChassis } from "@/hooks/useChassis";
+import { useBulkCreateVehicle } from "@/hooks/useVehicle";
+import VehicleImportExcel from "@/components/assets/vehicle/VehicleImportExcel";
+import VehicleImportPreviewDialog from "@/components/assets/vehicle/VehicleImportPreviewDialog";
 
 const AssetPage: React.FC = () => {
   const route = useRouter();
   const searchParam = useSearchParams();
 
   const chassisBulkMutation = useBulkCreateChassis();
+  const vehicleBulkMutation = useBulkCreateVehicle();
 
-  const [importedData, setImportedData] = useState<any[]>([]);
-  const [previewOpen, setPreviewOpen] = useState(false);
+  const [importedChassisData, setImportedChassisData] = useState<any[]>([]);
+  const [previewChassisOpen, setPreviewChassisOpen] = useState(false);
 
-  const handleImport = (data: any[]) => {
+  const [importedVehicleData, setImportedVehicleData] = useState<any[]>([]);
+  const [previewVehicleOpen, setPreviewVehicleOpen] = useState(false);
+
+  const handleChassisImport = (data: any[]) => {
     console.log("Imported Data:", data);
-    setImportedData(data);
-    setPreviewOpen(true);
+    setImportedChassisData(data);
+    setPreviewChassisOpen(true);
   };
 
-  const handleSubmitImport = async () => {
-    chassisBulkMutation.mutate(importedData);
+  const handleVehicleImport = (data: any[]) => {
+    console.log("Imported Data:", data);
+    setImportedVehicleData(data);
+    setPreviewVehicleOpen(true);
+  }
 
-    setPreviewOpen(false);
-    setImportedData([]);
+  const handleSubmitChassisImport = async () => {
+    chassisBulkMutation.mutate(importedChassisData);
+
+    setPreviewChassisOpen(false);
+    setImportedChassisData([]);
+  };
+
+  const handleSubmitVehicleImport = async () => {
+    vehicleBulkMutation.mutate(importedVehicleData);
+
+    setPreviewVehicleOpen(false);
+    setImportedVehicleData([]);
   };
 
   return (
@@ -48,7 +68,8 @@ const AssetPage: React.FC = () => {
         <CardHeader>
           <CardTitle>Daftar Aset</CardTitle>
           <CardAction className="space-x-2">
-            <ChassisImportExcel onImported={handleImport} />
+            <VehicleImportExcel onImported={handleVehicleImport} />
+            <ChassisImportExcel onImported={handleChassisImport} />
             <AssetForm />
           </CardAction>
         </CardHeader>
@@ -91,10 +112,18 @@ const AssetPage: React.FC = () => {
 
       {/* DIALOG PREVIEW */}
       <ChassisImportPreviewDialog
-        open={previewOpen}
-        data={importedData}
-        onClose={() => setPreviewOpen(false)}
-        onSubmit={handleSubmitImport}
+        open={previewChassisOpen}
+        data={importedChassisData}
+        onClose={() => setPreviewChassisOpen(false)}
+        onSubmit={handleSubmitChassisImport}
+      />
+
+      {/* VEHICLE PREVIEW DIALOG */}
+      <VehicleImportPreviewDialog
+        open={previewVehicleOpen}
+        data={importedVehicleData}
+        onClose={() => setPreviewVehicleOpen(false)}
+        onSubmit={handleSubmitVehicleImport}
       />
     </AdminLayout>
   );

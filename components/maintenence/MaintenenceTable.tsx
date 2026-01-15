@@ -13,7 +13,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { ChevronDown, Download, MoreHorizontal, Trash2 } from "lucide-react";
+import { ChevronDown, Download, Loader2, MoreHorizontal, Trash2 } from "lucide-react";
 import React from "react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -156,6 +156,9 @@ const MaintenenceTable: React.FC = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
+    },
+    initialState: {
+      pagination: { pageSize: 30 },
     },
   });
   return (
@@ -323,6 +326,45 @@ const DownloadMaintenancePDF = ({
 }: {
   maintenanceId: string;
 }) => {
+   const [loading, setLoading] = React.useState(false);
+
+  const handleDownload = async () => {
+    try {
+      setLoading(true);
+
+      const authToken = localStorage.getItem("token");
+
+      const response = await fetch(
+        `/api/maintenences/pdf?id=${maintenanceId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to download PDF");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `maintenance_${maintenanceId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   // const handleDownload = () => {
   //   // open PDF in new tab or force download
   //   window.open(
@@ -330,45 +372,66 @@ const DownloadMaintenancePDF = ({
   //     "_blank"
   //   );
   // };
-  const handleDownload = () => {
-    const authToken = localStorage.getItem("token"); // Adjust based on how you store the token
+  // const handleDownload = () => {
+  //   const authToken = localStorage.getItem("token"); // Adjust based on how you store the token
 
-    fetch(`/api/maintenences/pdf?id=${maintenanceId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.blob();
-      })
-      .then((blob) => {
-        // Create a URL for the blob
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `maintenance_${maintenanceId}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
-  };
+  //   // make timeout 1 minute to fetch request
+  //   fetch(`/api/maintenences/pdf?id=${maintenanceId}`, {
+  //     method: "GET",
+  //     headers: {
+  //       Authorization: `Bearer ${authToken}`,
+  //     },
+  //   })
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Network response was not ok");
+  //       }
+  //       return response.blob();
+  //     })
+  //     .then((blob) => {
+  //       // Create a URL for the blob
+  //       const url = window.URL.createObjectURL(new Blob([blob]));
+  //       const link = document.createElement("a");
+  //       link.href = url;
+  //       link.setAttribute("download", `maintenance_${maintenanceId}.pdf`);
+  //       document.body.appendChild(link);
+  //       link.click();
+  //       link.parentNode?.removeChild(link);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was a problem with the fetch operation:", error);
+  //     });
+  // };
 
   return (
-    <Button
-      size="icon"
-      variant="outline"
-      onClick={handleDownload}
-      title="Download PDF"
-    >
-      <Download className="h-4 w-4" />
-    </Button>
+    <>
+      <Button
+        size="icon"
+        variant="outline"
+        onClick={handleDownload}
+        disabled={loading}
+        title="Download PDF"
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Download className="h-4 w-4" />
+        )}
+      </Button>
+
+      {/* Loading Dialog */}
+      <AlertDialog open={loading}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader className="items-center text-center">
+            <Loader2 className="h-8 w-8 animate-spin mb-3" />
+            <AlertDialogTitle>Mengunduh PDF</AlertDialogTitle>
+            <AlertDialogDescription>
+              Mohon tunggu, laporan sedang diproses…
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 import { formatDateID } from "./formatDate";
 
-export function generateVehicleHTML(data: any, user: any) {
+export function generateVehicleHTML(data: any) {
   // Format Tanggal Indonesia (misal: RABU, 29 OKTOBER 2025)
   const dateObj = new Date(data.createdAt);
   const dateString = dateObj.toLocaleDateString("id-ID", {
@@ -291,7 +291,7 @@ export function generateVehicleHTML(data: any, user: any) {
         </tr>
       </table>
 
-      <h1 class="main-title">LAPORAN KEGIATAN SERVICE KENDARAAN BY MERCY</h1>
+      <h1 class="main-title">LAPORAN KEGIATAN SERVICE KENDARAAN</h1>
 
       <div style="border: 1px solid black;">
 
@@ -505,8 +505,8 @@ export function generateVehicleHTML(data: any, user: any) {
             <thead>
               <tr>
                 <th class="signature-header" style="width: 33%;">Dilakukan oleh :</th>
-                <th class="signature-header" style="width: 33%;">Di ketahui Oleh :</th>
-                <th class="signature-header" style="width: 33%;">Di Setujui Oleh :</th>
+                <th class="signature-header" style="width: 33%;">Dilaporkan oleh :</th>
+                <th class="signature-header" style="width: 33%;">Disetujui oleh :</th>
               </tr>
             </thead>
             <tbody>
@@ -514,14 +514,14 @@ export function generateVehicleHTML(data: any, user: any) {
                 <td class="signature-box">
                   <br><br><br>
                   <span class="bold" style="text-decoration: underline;">${
-                    data.user?.fullname
+                    data.done_by
                   }</span><br>
                   (Mekanik)
                 </td>
                 <td class="signature-box">
                    <br><br><br>
-                  <span class="bold" style="text-decoration: underline;">${user.fullname}</span><br>
-                  (${user.role})
+                  <span class="bold" style="text-decoration: underline;">${data.user?.fullname}</span><br>
+                  (${data.user?.role})
                 </td>
                 <td class="signature-box">
                    <br><br><br>
@@ -550,7 +550,7 @@ export function generateVehicleHTML(data: any, user: any) {
   `;
 }
 
-export function generateChassisHTML(data: any, user: any) {
+export function generateChassisHTML(data: any) {
   // Format Tanggal Indonesia (misal: RABU, 29 OKTOBER 2025)
   const dateObj = new Date(data.createdAt);
   const dateString = dateObj.toLocaleDateString("id-ID", {
@@ -818,7 +818,7 @@ export function generateChassisHTML(data: any, user: any) {
         </tr>
       </table>
 
-      <h1 class="main-title">LAPORAN KEGIATAN SERVICE CHASSIS BY MERCY</h1>
+      <h1 class="main-title">LAPORAN KEGIATAN SERVICE CHASSIS</h1>
 
       <div style="border: 1px solid black;">
 
@@ -987,21 +987,21 @@ export function generateChassisHTML(data: any, user: any) {
             <thead>
               <tr>
                 <th class="signature-header" style="width: 33%;">Dilakukan oleh :</th>
-                <th class="signature-header" style="width: 33%;">Di ketahui Oleh :</th>
-                <th class="signature-header" style="width: 33%;">Di Setujui Oleh :</th>
+                <th class="signature-header" style="width: 33%;">Dilaporkan oleh :</th>
+                <th class="signature-header" style="width: 33%;">Disetujui oleh :</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td class="signature-box">
                   <br><br><br>
-                  <span class="bold" style="text-decoration: underline;">${data.user?.fullname}</span><br>
+                  <span class="bold" style="text-decoration: underline;">${data.done_by}</span><br>
                   (Mekanik)
                 </td>
                 <td class="signature-box">
                    <br><br><br>
-                  <span class="bold" style="text-decoration: underline;">${user.fullname}</span><br>
-                  (${user.role})
+                  <span class="bold" style="text-decoration: underline;">${data.user?.fullname}</span><br>
+                  (${data.user?.role})
                 </td>
                 <td class="signature-box">
                    <br><br><br>
@@ -1024,7 +1024,7 @@ export function generateChassisHTML(data: any, user: any) {
   `;
 }
 
-export function generateEquipmentHTML(data: any, user: any) {
+export function generateEquipmentHTML(data: any) {
   // Format Tanggal Indonesia (misal: RABU, 29 OKTOBER 2025)
   const dateObj = new Date(data.createdAt);
   const dateString = dateObj.toLocaleDateString("id-ID", {
@@ -1281,7 +1281,7 @@ export function generateEquipmentHTML(data: any, user: any) {
         </tr>
       </table>
 
-      <h1 class="main-title">LAPORAN KEGIATAN SERVICE EQUIPMENT BY MERCY</h1>
+      <h1 class="main-title">LAPORAN KEGIATAN SERVICE EQUIPMENT</h1>
 
       <div style="border: 1px solid black;">
 
@@ -1435,21 +1435,21 @@ export function generateEquipmentHTML(data: any, user: any) {
             <thead>
               <tr>
                 <th class="signature-header" style="width: 33%;">Dilakukan oleh :</th>
-                <th class="signature-header" style="width: 33%;">Di ketahui Oleh :</th>
-                <th class="signature-header" style="width: 33%;">Di Setujui Oleh :</th>
+                <th class="signature-header" style="width: 33%;">Dilaporkan oleh :</th>
+                <th class="signature-header" style="width: 33%;">Disetujui oleh :</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td class="signature-box">
                   <br><br><br>
-                  <span class="bold" style="text-decoration: underline;">${data.user?.fullname || "Mekanik"}</span><br>
+                  <span class="bold" style="text-decoration: underline;">${data.done_by}</span><br>
                   (Mekanik)
                 </td>
                 <td class="signature-box">
                    <br><br><br>
-                  <span class="bold" style="text-decoration: underline;">${user.fullname}</span><br>
-                  (${user.role})
+                  <span class="bold" style="text-decoration: underline;">${data.user?.fullname}</span><br>
+                  (${data.user?.role})
                 </td>
                 <td class="signature-box">
                    <br><br><br>

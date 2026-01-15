@@ -219,6 +219,7 @@ async function handleCreateMaintenance(
         record_number: generatedID,
         repair_notes: body.repair_plan,
         spareparts_cost: sparepartCost,
+        done_by: body.done_by ?? null,
         total_cost: totalCost,
         asset_id: body.asset_id,
         driver_id: driver?.id ?? null,

@@ -186,6 +186,9 @@ const DriverTable: React.FC = () => {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: { pageSize: 30 },
+    },
   });
   return (
     <div className="w-full">

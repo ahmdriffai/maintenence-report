@@ -3,10 +3,10 @@
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { useRef } from "react";
-import { HEADER_MAP_CHASSIS } from "@/lib/utils";
 import { formatDate, formatDateID } from "@/lib/formatDate";
 import { FileSpreadsheetIcon, Import, ImportIcon, LucideImport, Plus, PlusCircle } from "lucide-react";
 import Document from "next/document";
+import { HEADER_MAP_VEHICLE } from "@/lib/utils";
 
 function excelDateToISO(value: any) {
   if (!value) return null;
@@ -16,7 +16,7 @@ function excelDateToISO(value: any) {
   return value;
 }
 
-export default function ChassisImportExcel({
+export default function VehicleImportExcel({
   onImported,
 }: {
   onImported: (data: any[]) => void;
@@ -30,7 +30,7 @@ export default function ChassisImportExcel({
     const reader = new FileReader();
     reader.onload = (evt) => {
       const wb = XLSX.read(evt.target?.result, { type: "binary" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
+      const ws = wb.Sheets[wb.SheetNames[1]];
 
       const raw = XLSX.utils.sheet_to_json<any[]>(ws, {
         header: 1,
@@ -66,17 +66,13 @@ export default function ChassisImportExcel({
         const temp: any = {};
 
         headers.forEach((header: string, idx: number) => {
-          const key = HEADER_MAP_CHASSIS[header?.trim()];
+          const key = HEADER_MAP_VEHICLE[header?.trim()];
           if (!key) return;
 
           let value = row[idx];
 
           if (key.includes("date")) {
             value = excelDateToISO(value);
-          }
-
-          if (key === "axle_count") {
-            value = Number(value) || 0;
           }
 
           temp[key] = value || null;
@@ -98,7 +94,7 @@ export default function ChassisImportExcel({
         
         return {
           asset: {
-            name: temp.chassis_name,
+            name: temp.license_plate || "",
             brand: temp.brand || "",
             model: temp.model || "",
             purchase_date: purchase_date,
@@ -108,14 +104,19 @@ export default function ChassisImportExcel({
           owner: temp.owner || "",
           address: temp.address || "",
           color: temp.color || "",
-          chassis_category: temp.chassis_type || "",
-          chassis_type: temp.frame_type || "FLATBED",
-          axle_count: temp.axle_count || 0,
+          license_plate: temp.license_plate || "",
+          stnk_number: String(temp.stnk_number) || "",
+          year: temp.year ? Number(temp.year) : undefined,
+          engine_number: String(temp.engine_number ?? "") || "",
+          frame_number: temp.chassis_number || "",
           no_kir: temp.kir_number || "",
           kir_due_date: temp.kir_due_date
             ? new Date(temp.kir_due_date)
             : undefined,
-          notes: temp.notes,
+          stnk_due_date: temp.stnk_due_date
+            ? new Date(temp.stnk_due_date)
+            : undefined,
+          notes: temp.notes || "",
         };
       });
 
@@ -145,7 +146,7 @@ export default function ChassisImportExcel({
         onClick={() => inputRef.current?.click()}
       >
         <FileSpreadsheetIcon />
-        Import Chassis
+        Import Kendaraan
       </Button>
     </>
   );

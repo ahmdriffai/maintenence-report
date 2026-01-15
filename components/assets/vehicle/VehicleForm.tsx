@@ -44,7 +44,7 @@ const VehicleForm: React.FC<Props> = ({ asset, onPrevius }) => {
       no_kir: "",
       notes: "",
       stnk_due_date: undefined,
-      vehicle_type: "",
+      stnk_number: "",
       year: undefined,
     },
   });
@@ -293,12 +293,12 @@ const VehicleForm: React.FC<Props> = ({ asset, onPrevius }) => {
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="vehicle_type"
+            name="stnk_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tipe Kendaraan</FormLabel>
+                <FormLabel>No STNK</FormLabel>
                 <FormControl>
-                  <Input placeholder="contoh: Truk" {...field} />
+                  <Input placeholder="contoh: 1234567890" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

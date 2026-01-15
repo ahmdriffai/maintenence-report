@@ -1,5 +1,5 @@
 import { User } from "@/generated/prisma/client";
-import { useGetAllUser } from "@/hooks/useUser";
+import { useDeleteUser, useGetAllUser } from "@/hooks/useUser";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -121,6 +121,7 @@ export const columns: ColumnDef<User>[] = [
           {/* <ViewVehicle vehicle={vehicle} /> */}
           {/* <SparepartEditDialog sparepart={payment} /> */}
           <UserEditDialog user={payment} />
+          <DeleteUser userId={row.original.id} />
         </div>
       );
     },
@@ -154,6 +155,9 @@ const UserTable: React.FC = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
+    },
+    initialState: {
+      pagination: { pageSize: 30 },
     },
   });
   return (
@@ -271,6 +275,47 @@ const UserTable: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const DeleteUser = ({ userId }: { userId: string }) => {
+  const [open, setOpen] = React.useState(false);
+  const deleteUser = useDeleteUser(userId);
+
+  const handleDelete = async () => {
+    try {
+      await deleteUser.mutateAsync();
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="icon" variant="destructive">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </AlertDialogTrigger>
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the
+            user.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete}>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 

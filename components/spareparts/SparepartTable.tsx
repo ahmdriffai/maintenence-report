@@ -153,17 +153,20 @@ const SparepartTable: React.FC = () => {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: { pageSize: 30 },
+    },
   });
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter fullnames..."
+          placeholder="Filter nama..."
           value={
-            (table.getColumn("fullname")?.getFilterValue() as string) ?? ""
+            (table.getColumn("name")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn("fullname")?.setFilterValue(event.target.value)
+            table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
