@@ -39,6 +39,7 @@ model User {
   password     String
   role         Role          @default(USER)
   createdAt    DateTime      @default(now())
+  deletedAt    DateTime?
   maintenences Maintenence[]
   is_active    Boolean       @default(true)
 
@@ -162,6 +163,7 @@ model Maintenence {
   labor_cost      Int
   spareparts_cost Int
   asset_image_url String
+  done_by         String?
   location        String?
   createdAt       DateTime               @default(now())
   spareparts      MaintenenceSparepart[]

@@ -72,7 +72,8 @@ export const columns: ColumnDef<EquipmentWithAsset>[] = [
     cell: ({ row }) => <div className="capitalize">{row.index + 1}</div>,
   },
 {
-    accessorKey: "asset.name",
+    id: "asset_name",
+    accessorFn: (row) => row.asset?.name ?? "",
     header: ({ column }) => {
       return (
         <Button
@@ -182,12 +183,12 @@ const EquipmentTable = () => {
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter fullnames..."
+          placeholder="Filter nama..."
           value={
-            (table.getColumn("fullname")?.getFilterValue() as string) ?? ""
+            (table.getColumn("asset_name")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn("fullname")?.setFilterValue(event.target.value)
+            table.getColumn("asset_name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

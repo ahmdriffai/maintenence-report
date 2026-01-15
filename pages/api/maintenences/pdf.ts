@@ -53,31 +53,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     switch (result.asset?.asset_type) {
     case "VEHICLE":
-        html = generateVehicleHTML(result, user);
+        html = generateVehicleHTML(result);
         break;
 
     case "CHASSIS":
-        html = generateChassisHTML(result, user);
+        html = generateChassisHTML(result);
         break;
 
     case "EQUIPMENT":
-        html = generateEquipmentHTML(result, user);
+        html = generateEquipmentHTML(result);
         break;
 
     default:
         html = "<h1>Type asset not supported</h1>";
     }
 
+    // const browser = await puppeteer.launch({
+    //   headless: true,
+    //   // disable if running locally
+    //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    // });
     const browser = await puppeteer.launch({
-      headless: true,
-      // disable if running locally
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+      ],
     });
 
     const page = await browser.newPage();
+    page.setDefaultTimeout(120_000);
+    page.setDefaultNavigationTimeout(120_000);
     
     // Set viewport untuk memastikan render CSS akurat
     await page.setViewport({ width: 794, height: 1123 }); // Ukuran A4 dalam px (96dpi)
+
+    // await page.setRequestInterception(true);
+    // page.on("request", (req) => {
+    // const type = req.resourceType();
+    //   if (["font", "media"].includes(type)) {
+    //     req.abort();
+    //   } else {
+    //     req.continue();
+    //   }
+    // });
 
     await page.setContent(html, {
       waitUntil: ["networkidle0", "domcontentloaded"],

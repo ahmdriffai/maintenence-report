@@ -1,3 +1,4 @@
+import axios from "axios";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -29,6 +30,19 @@ export function getNextGeneratedNumber(
 
   return `${prefix}${String(lastNumber + 1).padStart(padLength, "0")}`;
 }
+
+export async function imageUrlToBase64(url: string) {
+  const response = await axios.get(url, {
+    responseType: "arraybuffer",
+    timeout: 15000,
+  });
+
+  const contentType = response.headers["content-type"];
+  const base64 = Buffer.from(response.data).toString("base64");
+
+  return `data:${contentType};base64,${base64}`;
+}
+
 
 // utils/assetExcelMapper.ts
 export const HEADER_MAP_CHASSIS: Record<string, string> = {
