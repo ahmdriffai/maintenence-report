@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Asset, Prisma } from "@/generated/prisma/client";
-import { useDeleteVehicle, useGetAllVehicle } from "@/hooks/useVehicle";
+import { useBulkDeleteVehicle, useDeleteVehicle, useGetAllVehicle } from "@/hooks/useVehicle";
 import { formatDateID } from "@/lib/formatDate";
 import {
   ColumnDef,
@@ -49,163 +49,153 @@ type VehicleWithAsset = Prisma.VehicleGetPayload<{
   include: { asset: true };
 }>;
 
-export const columns: ColumnDef<VehicleWithAsset>[] = [
+export const getColumns = (showAll: boolean): ColumnDef<VehicleWithAsset>[] => [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          showAll
+            ? table.getIsAllRowsSelected() ||
+              (table.getIsSomeRowsSelected() && "indeterminate")
+            : table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        onCheckedChange={(v) =>
+          showAll
+            ? table.toggleAllRowsSelected(!!v)
+            : table.toggleAllPageRowsSelected(!!v)
+        }
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        onCheckedChange={(v) => row.toggleSelected(!!v)}
       />
     ),
     enableSorting: false,
     enableHiding: false,
   },
   {
-    accessorKey: "no",
     header: "No",
-    cell: ({ row }) => <div className="capitalize">{row.index + 1}</div>,
-  },
-
-  {
-    accessorKey: "asset.name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Nama
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const asset = row.original.asset as Asset;
-
-      return (
-        <div className="flex flex-col">
-          <span className="font-semibold">{asset?.name}</span>
-          <span className="text-sm text-muted-foreground">
-            warna: {row.original.color}
-          </span>
-        </div>
-      );
-    },
+    cell: ({ row }) => row.index + 1,
   },
   {
-    accessorKey: "asset.code",
-    header: "Kode",
+    id: "asset_name",
+    accessorFn: (row) => row.asset?.name ?? "",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Nama <ArrowUpDown />
+      </Button>
+    ),
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.asset.asset_code}</div>
+      <div className="flex flex-col gap-1">
+        <span className="font-semibold">{row.original.asset.name}</span>
+        <span className="text-xs text-muted-foreground">
+          warna: {row.original.color ?? "-"}
+        </span>
+      </div>
     ),
   },
   {
-    accessorKey: "asset.brand",
-    header: "Brand",
-    cell: ({ row }) => {
-      return (
-        <div className="flex flex-col">
-          <span className="font-semibold">{row.original.asset.brand}</span>
-          <span className="text-xs text-muted-foreground">
-            tahun: {row.original.year}
-          </span>
-        </div>
-      );
-    },
+    header: "Kode",
+    cell: ({ row }) => row.original.asset.asset_code,
   },
-
   {
-    accessorKey: "license_plate",
-    header: "Nomor Plat",
-    cell: ({ row }) => {
-      return (
-        <div className="flex flex-col">
-          <span className="font-semibold">{row.getValue("license_plate")}</span>
-          <span className="text-xs text-muted-foreground">
-            s/d: {formatDateID(row.original.stnk_due_date)}
-          </span>
+    accessorKey: "owner",
+    header: "Pemilik",
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <div className="font-semibold">{row.getValue("owner")}</div>
+        <div className="text-xs text-muted-foreground">
+          {row.original.address}
         </div>
-      );
-    },
+      </div>
+    ),
+  },
+  {
+    header: "Brand",
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <span className="font-semibold">{row.original.asset.brand}</span>
+        <span className="text-xs text-muted-foreground">
+          tahun: {row.original.year}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "engine_number",
+    header: "Nomor Mesin",
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <span className="font-semibold">{row.original.engine_number ?? "-"}</span>
+        <span className="text-xs text-muted-foreground">
+          s/d: {formatDateID(row.original.stnk_due_date)}
+        </span>
+      </div>
+    ),
   },
   {
     accessorKey: "no_kir",
     header: "Nomor KIR",
-    cell: ({ row }) => {
-      return (
-        <div className="flex flex-col">
-          <span className="font-semibold">{row.getValue("no_kir")}</span>
-          <span className="text-xs text-muted-foreground">
-            s/d: {formatDateID(row.original.kir_due_date)}
-          </span>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <span className="font-semibold">{row.getValue("no_kir")}</span>
+        <span className="text-xs text-muted-foreground">
+          s/d: {formatDateID(row.original.kir_due_date)}
+        </span>
+      </div>
+    ),
   },
   {
-    accessorKey: "asset.status",
     header: "Status",
-    cell: ({ row }) => {
-      return (
-        <div className="capitalize">
-          {row.original.asset.is_active ? (
-            <Badge>Aktif</Badge>
-          ) : (
-            <Badge variant="destructive">Tidak Aktif</Badge>
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) =>
+      row.original.asset.is_active ? (
+        <Badge>Aktif</Badge>
+      ) : (
+        <Badge variant="destructive">Tidak Aktif</Badge>
+      ),
   },
   {
     id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const vehicle = row.original;
-
-      return (
-        <div className="flex justify-end gap-2">
-          {/* <ViewVehicle vehicle={vehicle} /> */}
-          <EditVehicle vehicle={vehicle} />
-          <DeleteVehicle vehicleId={vehicle.id} />
-        </div>
-      );
-    },
-  }
+    cell: ({ row }) => (
+      <div className="flex justify-end gap-2">
+        <EditVehicle vehicle={row.original} />
+        <DeleteVehicle vehicleId={row.original.id} />
+      </div>
+    ),
+  },
 ];
 
 const VehicleTable: React.FC = () => {
-  const spareparts = useGetAllVehicle();
+  const vehicles = useGetAllVehicle();
+  const deleteBulkVehicle = useBulkDeleteVehicle(); // ⬅️ asumsi sudah ada
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [showAll, setShowAll] = React.useState(false);
+
+  const columns = React.useMemo(
+    () => getColumns(showAll),
+    [showAll]
+  );
 
   const table = useReactTable({
-    data: spareparts.data ?? [],
+    data: vehicles.data ?? [],
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -214,103 +204,128 @@ const VehicleTable: React.FC = () => {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: { pageSize: 30 },
+    },
   });
+
+   const selectedIds = table
+    .getSelectedRowModel()
+    .rows.map((r) => r.original.id);
+
+  const handleBulkDelete = async () => {
+    deleteBulkVehicle.mutate({ ids: selectedIds })
+    table.resetRowSelection();
+  };
+
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      {/* ===== HEADER ===== */}
+      <div className="flex items-center gap-2 py-4">
         <Input
-          placeholder="Filter nomor plat..."
+          placeholder="Filter nama..."
           value={
-            (table.getColumn("license_plate")?.getFilterValue() as string) ?? ""
+            (table.getColumn("asset_name")?.getFilterValue() as string) ?? ""
           }
-          onChange={(event) =>
-            table.getColumn("license_plate")?.setFilterValue(event.target.value)
+          onChange={(e) =>
+            table.getColumn("asset_name")?.setFilterValue(e.target.value)
           }
           className="max-w-sm"
         />
+
+        {selectedIds.length > 0 && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Hapus ({selectedIds.length})
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Hapus vehicle?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {selectedIds.length} vehicle akan dihapus permanen.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction onClick={handleBulkDelete}>
+                  Hapus
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        <Button
+          variant="outline"
+          className="ml-auto"
+          onClick={() => setShowAll((v) => !v)}
+        >
+          {showAll ? "Pagination" : "Tampilkan Semua"}
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline">
               Columns <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {table
               .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
+              .filter((c) => c.getCanHide())
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(v) =>
+                    column.toggleVisibility(!!v)
+                  }
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="overflow-hidden rounded-md border">
+
+      {/* ===== TABLE ===== */}
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((h) => (
+                  <TableHead key={h.id}>
+                    {flexRender(h.column.columnDef.header, h.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
+            {(showAll
+              ? table.getFilteredRowModel().rows
+              : table.getRowModel().rows
+            ).map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected()}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className="space-x-2">
+
+      {/* ===== FOOTER ===== */}
+      {!showAll && (
+        <div className="flex justify-end gap-2 py-4">
           <Button
             variant="outline"
             size="sm"
@@ -328,10 +343,11 @@ const VehicleTable: React.FC = () => {
             Next
           </Button>
         </div>
-      </div>
+      )}
     </div>
   );
 };
+
 
 const ViewVehicle = ({ vehicle }: { vehicle: VehicleWithAsset }) => {
   return (

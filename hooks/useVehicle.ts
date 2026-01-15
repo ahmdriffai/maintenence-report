@@ -1,6 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import api from "@/lib/fetcher";
-import { CreateVehicleSchema, UpdateVehicleSchema } from "@/schema/vehicleSchema";
+import { CreateVehicleSchema, DeleteVehicleBulkSchema, UpdateVehicleSchema } from "@/schema/vehicleSchema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
@@ -84,6 +84,51 @@ export const useUpdateVehicle = (vehicleId: string) => {
     },
     onError: () => {
       toast.error("Failed to update Vehicle");
+    },
+  });
+};
+
+export const useBulkCreateVehicle = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: async (data: z.infer<typeof CreateVehicleSchema>[]) => {
+      const res = await api.post(`/vehicles/bulk`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Vehicles imported successfully");
+      router.push("/admin/assets?asset=vehicle");
+      setTimeout(() => {
+        router.reload();
+      }, 1000);
+    },
+    onError: () => {
+      toast.error("Failed to import Vehicles");
+    },
+  });
+};
+
+export const useBulkDeleteVehicle = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: z.infer<typeof DeleteVehicleBulkSchema>) => {
+      const res = await api.post(`/vehicles/bulk-delete`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Vehicles deleted successfully");
+      router.push("/admin/assets?asset=vehicle");
+      setTimeout(() => {
+        router.reload();
+      }, 1000);
+    },
+    onError: () => {
+      toast.error("Failed to delete Vehicles");
     },
   });
 };
