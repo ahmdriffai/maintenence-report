@@ -423,7 +423,9 @@ export function generateVehicleHTML(data: any) {
                   <tr>
                   <td class="label">Tanggal Kadaluarsa SIM</td>
                   <td class="separator">:</td>
-                  <td class="value">${formatDateID(data.driver.sim_due_date) || "-"}</td>
+                  <td class="value">
+                    ${formatDateID(data.driver?.sim_due_date) ?? "-"}
+                  </td>
                 </tr>
               </table>
             </div>
@@ -933,7 +935,9 @@ export function generateChassisHTML(data: any) {
                  <tr>
                   <td class="label">Tanggal Kadaluarsa SIM</td>
                   <td class="separator">:</td>
-                  <td class="value">${formatDateID(data.driver.sim_due_date) || "-"}</td>
+                  <td class="value">
+                    ${formatDateID(data.driver?.sim_due_date) ?? "-"}
+                  </td>
                 </tr>
               </table>
             </div>
@@ -1382,7 +1386,9 @@ export function generateEquipmentHTML(data: any) {
                 <tr>
                   <td class="label">Tanggal Kadaluarsa SIM</td>
                   <td class="separator">:</td>
-                  <td class="value">${formatDateID(data.driver.sim_due_date) || "-"}</td>
+                  <td class="value">
+                    ${formatDateID(data.driver?.sim_due_date) ?? "-"}
+                  </td>
                 </tr>
               </table>
             </div>
