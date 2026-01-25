@@ -37,3 +37,7 @@ export const UpdateEquipmentSchema = z.object({
   specification: z.string(),
   condition: z.string(),
 });
+
+export const DeleteEquipmentBulkSchema = z.object({
+  ids: z.array(z.uuid()),
+});
