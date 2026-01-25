@@ -6,9 +6,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useDashboardSummary } from "@/hooks/useDashboard";
 import { Package, ShoppingCart, TrendingUp, Users } from "lucide-react";
 
 const DashboardPage: React.FC = () => {
+  const { data, isLoading } = useDashboardSummary();
   return (
     <AdminLayout>
       {/* Stats Grid */}
@@ -17,16 +19,31 @@ const DashboardPage: React.FC = () => {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardDescription className="text-xs font-medium">
-                Total Revenue
+                Perbaikan hari ini
               </CardDescription>
               <TrendingUp className="w-4 h-4 text-blue-500" />
             </div>
           </CardHeader>
           <CardContent>
-            <CardTitle className="text-2xl font-bold">$45,231</CardTitle>
-            <p className="text-xs text-green-600 font-medium mt-1">
-              +20.1% dari bulan terakhir.
-            </p>
+            <CardTitle className="text-2xl font-bold">
+              {isLoading ? "-" : data?.total_today_maintenances ?? 0}
+            </CardTitle>
+          </CardContent>
+        </Card>
+
+          <Card className="border-l-4 border-l-orange-500">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardDescription className="text-xs font-medium">
+                Perbaikan bulan ini
+              </CardDescription>
+              <ShoppingCart className="w-4 h-4 text-orange-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CardTitle className="text-2xl font-bold">
+              {isLoading ? "-" : data?.total_this_month_maintenances ?? 0}
+            </CardTitle>
           </CardContent>
         </Card>
 
@@ -40,27 +57,9 @@ const DashboardPage: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <CardTitle className="text-2xl font-bold">2,350</CardTitle>
-            <p className="text-xs text-green-600 font-medium mt-1">
-              +180 new users
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-orange-500">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardDescription className="text-xs font-medium">
-                Total Orders
-              </CardDescription>
-              <ShoppingCart className="w-4 h-4 text-orange-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CardTitle className="text-2xl font-bold">1,234</CardTitle>
-            <p className="text-xs text-red-600 font-medium mt-1">
-              -4.5% from last month
-            </p>
+            <CardTitle className="text-2xl font-bold">
+              {isLoading ? "-" : data?.total_active_users ?? 0}
+            </CardTitle>
           </CardContent>
         </Card>
 
@@ -68,16 +67,15 @@ const DashboardPage: React.FC = () => {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardDescription className="text-xs font-medium">
-                Products
+                Total sparepart
               </CardDescription>
               <Package className="w-4 h-4 text-purple-500" />
             </div>
           </CardHeader>
           <CardContent>
-            <CardTitle className="text-2xl font-bold">567</CardTitle>
-            <p className="text-xs text-green-600 font-medium mt-1">
-              +12 new products
-            </p>
+            <CardTitle className="text-2xl font-bold">
+              {isLoading ? "-" : data?.total_spareparts ?? 0}
+            </CardTitle>
           </CardContent>
         </Card>
       </div>

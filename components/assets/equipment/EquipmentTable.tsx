@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Asset, Prisma } from "@/generated/prisma/client";
-import { useDeleteEquipment, useGetAllEquipment } from "@/hooks/useEquipment";
+import { useBulkDeleteEquipment, useDeleteEquipment, useGetAllEquipment } from "@/hooks/useEquipment";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -34,7 +34,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
-import React from "react";
+import React, { use } from "react";
 import EquipmentEditForm from "./EquipmentEditForm";
 import { useDeleteVehicle } from "@/hooks/useVehicle";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction, AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -43,24 +43,31 @@ type EquipmentWithAsset = Prisma.EquipmentGetPayload<{
   include: { asset: true };
 }>;
 
-export const columns: ColumnDef<EquipmentWithAsset>[] = [
+export const getColumns = (showAll: boolean): ColumnDef<EquipmentWithAsset>[] => [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          showAll
+            ? table.getIsAllRowsSelected() ||
+            (table.getIsSomeRowsSelected() && "indeterminate")
+            : table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        onCheckedChange={(v) => {
+          if (showAll) {
+            table.toggleAllRowsSelected(!!v); // 🔥 select ALL data
+          } else {
+            table.toggleAllPageRowsSelected(!!v); // page only
+          }
+        }}
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        onCheckedChange={(v) => row.toggleSelected(!!v)}
       />
     ),
     enableSorting: false,
@@ -71,7 +78,7 @@ export const columns: ColumnDef<EquipmentWithAsset>[] = [
     header: "No",
     cell: ({ row }) => <div className="capitalize">{row.index + 1}</div>,
   },
-{
+  {
     id: "asset_name",
     accessorFn: (row) => row.asset?.name ?? "",
     header: ({ column }) => {
@@ -106,20 +113,20 @@ export const columns: ColumnDef<EquipmentWithAsset>[] = [
     ),
   },
   {
-      accessorKey: "asset.model",
-      header: "Model",
-      cell: ({ row }) => {
-        return (
-          <div className="flex flex-col">
-            <span className="font-semibold">{row.original.asset?.model}</span>
-            <span className="text-xs text-muted-foreground">
-              no seri: {row.original.asset?.serrial_number}
-            </span>
-          </div>
-        );
-      },
+    accessorKey: "asset.model",
+    header: "Model",
+    cell: ({ row }) => {
+      return (
+        <div className="flex flex-col">
+          <span className="font-semibold">{row.original.asset?.model}</span>
+          <span className="text-xs text-muted-foreground">
+            no seri: {row.original.asset?.serrial_number}
+          </span>
+        </div>
+      );
     },
-    {
+  },
+  {
     accessorKey: "asset.status",
     header: "Status",
     cell: ({ row }) => {
@@ -150,8 +157,9 @@ export const columns: ColumnDef<EquipmentWithAsset>[] = [
   },
 ];
 
-const EquipmentTable = () => {
+const EquipmentTable: React.FC = () => {
   const spareparts = useGetAllEquipment();
+  const deleteBulkEquipment = useBulkDeleteEquipment();
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -160,6 +168,11 @@ const EquipmentTable = () => {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [showAll, setShowAll] = React.useState(false);
+  const columns = React.useMemo(
+    () => getColumns(showAll),
+    [showAll]
+  );
 
   const table = useReactTable({
     data: spareparts.data ?? [],
@@ -178,10 +191,26 @@ const EquipmentTable = () => {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 30,
+      },
+    },
   });
+
+  const selectedIds = table
+    .getSelectedRowModel()
+    .rows.map((r) => r.original.id);
+
+  const handleBulkDelete = async () => {
+    deleteBulkEquipment.mutate({ ids: selectedIds })
+    table.resetRowSelection();
+  };
+
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      {/* ===== HEADER ===== */}
+      <div className="flex items-center gap-2 py-4">
         <Input
           placeholder="Filter nama..."
           value={
@@ -192,107 +221,149 @@ const EquipmentTable = () => {
           }
           className="max-w-sm"
         />
+
+        {selectedIds.length > 0 && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Hapus ({selectedIds.length})
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Hapus data terpilih?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {selectedIds.length} equipment akan dihapus permanen.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction onClick={handleBulkDelete}>
+                  Hapus
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        <Button
+          variant="outline"
+          className="ml-auto"
+          onClick={() => setShowAll((v) => !v)}
+        >
+          {showAll ? "Pagination" : "Tampilkan Semua"}
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline">
               Columns <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {table
               .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
+              .filter((c) => c.getCanHide())
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(v) =>
+                    column.toggleVisibility(!!v)
+                  }
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="overflow-hidden rounded-md border">
+
+      {/* ===== TABLE ===== */}
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((h) => (
+                  <TableHead key={h.id}>
+                    {flexRender(h.column.columnDef.header, h.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
+            {(showAll
+              ? table.getFilteredRowModel().rows
+              : table.getRowModel().rows
+            ).map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected()}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+
+      {/* ===== FOOTER ===== */}
+      {!showAll && (
+        <div className="flex items-center justify-end space-x-4 py-4">
+          {/* Info selected rows */}
+          <div className="text-muted-foreground flex-1 text-sm">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+          {/* Page size dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Rows per page</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  {table.getState().pagination.pageSize}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {[30, 60, 90, 120].map((pageSize) => (
+                  <DropdownMenuItem
+                    key={pageSize}
+                    onClick={() => table.setPageSize(pageSize)}
+                  >
+                    {pageSize}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Pagination buttons */}
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

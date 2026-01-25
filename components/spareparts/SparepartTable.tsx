@@ -115,7 +115,7 @@ export const columns: ColumnDef<Sparepart>[] = [
     cell: ({ row }) => {
       const payment = row.original;
       return (
-         <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2">
           {/* <ViewVehicle vehicle={vehicle} /> */}
           <SparepartEditDialog sparepart={payment} />
           <DeleteSparepart sparepartId={payment.id} />
@@ -208,9 +208,9 @@ const SparepartTable: React.FC = () => {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
@@ -247,11 +247,36 @@ const SparepartTable: React.FC = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-4 py-4">
+        {/* Info selected rows */}
         <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
+        {/* Page size dropdown */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Rows per page</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                {table.getState().pagination.pageSize}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {[30, 60, 90, 120].map((pageSize) => (
+                <DropdownMenuItem
+                  key={pageSize}
+                  onClick={() => table.setPageSize(pageSize)}
+                >
+                  {pageSize}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Pagination buttons */}
         <div className="space-x-2">
           <Button
             variant="outline"

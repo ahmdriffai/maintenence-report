@@ -57,9 +57,9 @@ export const getColumns = (showAll: boolean): ColumnDef<VehicleWithAsset>[] => [
         checked={
           showAll
             ? table.getIsAllRowsSelected() ||
-              (table.getIsSomeRowsSelected() && "indeterminate")
+            (table.getIsSomeRowsSelected() && "indeterminate")
             : table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
+            (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(v) =>
           showAll
@@ -209,7 +209,7 @@ const VehicleTable: React.FC = () => {
     },
   });
 
-   const selectedIds = table
+  const selectedIds = table
     .getSelectedRowModel()
     .rows.map((r) => r.original.id);
 
@@ -325,23 +325,54 @@ const VehicleTable: React.FC = () => {
 
       {/* ===== FOOTER ===== */}
       {!showAll && (
-        <div className="flex justify-end gap-2 py-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+        <div className="flex items-center justify-end space-x-4 py-4">
+          {/* Info selected rows */}
+          <div className="text-muted-foreground flex-1 text-sm">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+          {/* Page size dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Rows per page</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  {table.getState().pagination.pageSize}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {[30, 60, 90, 120].map((pageSize) => (
+                  <DropdownMenuItem
+                    key={pageSize}
+                    onClick={() => table.setPageSize(pageSize)}
+                  >
+                    {pageSize}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Pagination buttons */}
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>
