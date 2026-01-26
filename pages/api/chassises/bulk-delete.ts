@@ -14,27 +14,44 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { ids } = DeleteChassisBulkSchema.parse(req.body);
 
-    // OPTIONAL: pastikan semua chassis ada
-    const existing = await prisma.chassis.count({
-      where: { id: { in: ids } },
+    const result = await prisma.$transaction(async (tx) => {
+      // 1️⃣ Ambil asset_id dari chassis
+      const chassisList = await tx.chassis.findMany({
+        where: { id: { in: ids } },
+        select: {
+          id: true,
+          asset_id: true,
+        },
+      });
+
+      if (chassisList.length === 0) {
+        throw new Error("Chassis not found");
+      }
+
+      const assetIds = chassisList.map((c) => c.asset_id);
+
+      // 2️⃣ Hapus reminder berdasarkan asset
+      await tx.reminder.deleteMany({
+        where: {
+          asset_id: { in: assetIds },
+        },
+      });
+
+      // 3️⃣ Hapus chassis
+      const deletedChassis = await tx.chassis.deleteMany({
+        where: {
+          id: { in: ids },
+        },
+      });
+
+      return {
+        deletedChassis: deletedChassis.count,
+        deletedAssets: assetIds.length,
+        deletedReminders: true,
+      };
     });
 
-    if (existing === 0) {
-      return res.status(404).json(fail("Chassis not found"));
-    }
-
-    // ✅ SAMA dengan delete satuan → hanya delete chassis
-    const deleted = await prisma.chassis.deleteMany({
-      where: {
-        id: { in: ids },
-      },
-    });
-
-    return res.status(200).json(
-      success({
-        deletedCount: deleted.count,
-      })
-    );
+    return res.status(200).json(success(result));
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -42,6 +59,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         message: "Validasi gagal",
         errors: error.flatten().fieldErrors,
       });
+    }
+
+    if (error.message === "Chassis not found") {
+      return res.status(404).json(fail("Chassis not found"));
     }
 
     console.error("Bulk delete error:", error);

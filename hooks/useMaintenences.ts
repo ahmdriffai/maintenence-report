@@ -6,13 +6,29 @@ import { on } from "events";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-// get all equipment
-export const useGetAllMaintenence = () => {
-  return useQuery<Maintenence[]>({
-    queryKey: ["maintenences"],
+// Tambahkan interface untuk response API
+interface MaintenanceResponse {
+  data: Maintenence[];
+  pagging: {
+    total: number;
+    page: number;
+    size: number;
+    totalPages: number;
+  };
+}
+
+export const useGetAllMaintenence = (params: { page: number; size: number; search?: string }) => {
+  return useQuery<MaintenanceResponse>({
+    queryKey: ["maintenences", params], // Key berubah setiap kali params berubah
     queryFn: async () => {
-      const res = await api.get(`/maintenences`);
-      return res.data.data;
+      const res = await api.get(`/maintenences`, {
+        params: {
+          page: params.page,
+          size: params.size,
+          search: params.search,
+        },
+      });
+      return res.data;
     },
   });
 };
@@ -51,4 +67,39 @@ export const useUpdateMaintenence = (maintenenceId: string) => {
       handleApiError(error, "Maintenence update failed");
     },
   });
+};
+
+// get maintenence by asset id
+// export const useGetMaintenenceByAssetId = (assetId: string) => {
+//   return useQuery<Maintenence[]>({
+//     queryKey: ["maintenences", assetId],
+//     queryFn: async () => {
+//       try {
+//         const res = await api.get(`/maintenences/asset/${assetId}`);
+//         return res.data.data;
+//       } catch (error) {
+//         handleApiError(error, "Failed to fetch maintenences for asset");
+//         throw error;
+//       }
+//     },
+//   });
+// };
+
+// Di dalam hooks/useMaintenences.ts
+export const useGetMaintenenceByAssetId = (id: string, options?: any) => {
+  return useQuery({
+    queryKey: ['maintenance', id],
+    queryFn: () => fetchByAssetId(id),
+    ...options, // Ini agar { enabled: ... } bisa masuk
+  });
+};
+
+const fetchByAssetId = async (assetId: string): Promise<Maintenence[]> => {
+  try {
+    const res = await api.get(`/maintenences/asset/${assetId}`);
+    return res.data.data;
+  } catch (error) {
+    handleApiError(error, "Failed to fetch maintenences for asset");
+    throw error;
+  }
 };
