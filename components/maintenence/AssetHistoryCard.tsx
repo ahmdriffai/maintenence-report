@@ -171,7 +171,7 @@ const AssetHistoryCard = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-2 space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+          {/* <div className="mt-2 space-y-3 max-h-[50vh] overflow-y-auto pr-2">
             {isHistoryLoading ? (
               <div className="flex flex-col items-center justify-center py-12 gap-2">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
@@ -191,13 +191,13 @@ const AssetHistoryCard = () => {
                   </div>
 
                   <DownloadMaintenancePDF maintenanceId={log.id} />
-                  {/* <button 
+                  <button 
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-white border shadow-sm rounded-md text-xs font-medium hover:bg-blue-600 hover:text-white transition-all"
                     onClick={() => window.open(`/api/reports/maintenance/${log.id}`, '_blank')}
                   >
                     <Download className="w-3 h-3" />
                     Report
-                  </button> */}
+                  </button>
                 </div>
               ))
             ) : (
@@ -205,7 +205,7 @@ const AssetHistoryCard = () => {
                 Belum ada catatan perbaikan untuk unit ini.
               </div>
             )}
-          </div>
+          </div> */}
         </DialogContent>
       </Dialog>
     </>

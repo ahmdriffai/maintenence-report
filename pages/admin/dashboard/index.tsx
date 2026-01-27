@@ -224,7 +224,7 @@ const DashboardPage: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 {isReminderLoading ? (
                   <p className="text-sm text-gray-500 italic">Memuat pengingat...</p>
                 ) : paginatedReminders.length === 0 ? (
@@ -251,7 +251,7 @@ const DashboardPage: React.FC = () => {
                     );
                   })
                 )}
-              </div>
+              </div> */}
 
               {filteredReminders.length > PAGE_SIZE && (
                 <div className="flex justify-between mt-4 items-center">
