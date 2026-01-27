@@ -24,6 +24,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Remove unused Docker images
+        run: docker image prune -af
+    
+      - name: Cleanup Docker system
+        run: docker system prune -af
+        
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/${{ github.repository }}:latest .
