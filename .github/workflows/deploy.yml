@@ -24,11 +24,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Remove unused Docker images
-        run: docker image prune -af
-    
-      - name: Cleanup Docker system
-        run: docker system prune -af
+      - name: Show GitHub Actions runtime info
+        run: |
+            echo "=== GITHUB ACTIONS RUNTIME INFO ==="
+            echo "HOSTNAME:"
+            hostname
+            echo ""
+            echo "USER:"
+            whoami
+            echo ""
+            echo "GITHUB ACTOR:"
+            echo "${{ github.actor }}"
+            echo ""
+            echo "RUNNER NAME:"
+            echo "${{ runner.name }}"
+            echo ""
+            echo "RUNNER OS:"
+            echo "${{ runner.os }}"
+            echo ""
+            echo "WORKSPACE:"
+            pwd
         
       - name: Build Docker image
         run: |
