@@ -224,7 +224,7 @@ const DashboardPage: React.FC = () => {
                 />
               </div>
 
-              {/* <div className="space-y-2">
+              <div className="space-y-2">
                 {isReminderLoading ? (
                   <p className="text-sm text-gray-500 italic">Memuat pengingat...</p>
                 ) : paginatedReminders.length === 0 ? (
@@ -233,7 +233,7 @@ const DashboardPage: React.FC = () => {
                     <p className="text-sm text-gray-400">Tidak ada pengingat untuk periode ini.</p>
                   </div>
                 ) : (
-                  paginatedReminders.map((item) => {
+                  paginatedReminders.map((item: any) => {
                     const label = item.asset.vehicle?.license_plate || item.asset.chassis?.chassis_number || item.asset.name;
                     return (
                       <div key={item.id} className="flex justify-between items-center p-3 rounded border border-gray-100 hover:bg-gray-50 transition-colors">
@@ -251,7 +251,7 @@ const DashboardPage: React.FC = () => {
                     );
                   })
                 )}
-              </div> */}
+              </div>
 
               {filteredReminders.length > PAGE_SIZE && (
                 <div className="flex justify-between mt-4 items-center">
